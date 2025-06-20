@@ -1,7 +1,7 @@
 {
-  "name": "psyche-link-consciousness-weaver",
+  "name": "synaptic-forge-adaptive-foresight-engine",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,7 +18,8 @@
     "axios": "^1.6.7",
     "three": "^0.160.0",
     "@react-three/fiber": "^8.15.0",
-    "@react-three/drei": "^9.92.0"
+    "@react-three/drei": "^9.92.0",
+    "tone": "^14.7.77"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

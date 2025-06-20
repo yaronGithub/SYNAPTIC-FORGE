@@ -1,135 +1,183 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { PersonalEmotionalState, BlendedResonanceProfile, GlobalPulseData } from './types';
-import { nexusAI } from './services/nexusAI';
-import { PsycheVisualizer } from './components/PsycheVisualizer';
-import { PsycheAudioscape } from './components/PsycheAudioscape';
-import { PersonalEmotionalNexus } from './components/PersonalEmotionalNexus';
-import { SharedConsciousnessStream } from './components/SharedConsciousnessStream';
-import { NexusAvatar } from './components/NexusAvatar';
-import { Brain, Volume2, VolumeX, Power, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CognitiveCanvas } from './components/CognitiveCanvas';
+import { AdaptiveAudioEngine } from './components/AdaptiveAudioEngine';
+import { QueryForge } from './components/QueryForge';
+import { ForesightDisplay } from './components/ForesightDisplay';
+import { synapticForgeAI } from './services/synapticForgeAI';
+import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
+import { Brain, Zap, Activity, Settings } from 'lucide-react';
 
 function App() {
   // Core state
-  const [globalPulse, setGlobalPulse] = useState<GlobalPulseData | null>(null);
-  const [resonanceProfile, setResonanceProfile] = useState<BlendedResonanceProfile | null>(null);
-  const [personalState, setPersonalState] = useState<PersonalEmotionalState | null>(null);
-  
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    id: 'user-1',
+    learnedBiases: {
+      preferredAnalysisDepth: 'detailed',
+      industryFocus: ['technology', 'business'],
+      riskTolerance: 'moderate',
+      decisionStyle: 'analytical',
+      informationDensity: 'balanced'
+    },
+    validatedInsightsHistory: [],
+    preferredAnalysisModes: ['strategic_analysis', 'innovation_opportunities'],
+    aiPersonalityEvolutionStage: 5,
+    cognitivePreferences: {
+      preferredBrainwaveState: 'beta',
+      voiceTone: 'authoritative',
+      visualComplexity: 'moderate'
+    }
+  });
+
+  const [foresightConstruct, setForesightConstruct] = useState<ForesightConstruct | null>(null);
+  const [emergentVectors, setEmergentVectors] = useState<EmergentStrategicVector[]>([]);
+  const [cognitiveState, setCognitiveState] = useState<CognitiveState>({
+    currentBrainwaveTarget: 'Beta (18-25 Hz)',
+    focusLevel: 0.7,
+    creativityLevel: 0.5,
+    clarityLevel: 0.8,
+    isOptimized: true
+  });
+
   // UI state
-  const [isActive, setIsActive] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [queryForgeVisible, setQueryForgeVisible] = useState(false);
+  const [foresightVisible, setForesightVisible] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [systemStatus, setSystemStatus] = useState<'initializing' | 'ready' | 'processing' | 'error'>('initializing');
 
-  // Initialize PSYCHE-LINK
-  const initializePsycheLink = async () => {
-    setIsActive(true);
+  // Initialize SYNAPTIC FORGE
+  const initializeSystem = async () => {
+    setSystemStatus('initializing');
     setIsProcessing(true);
 
     try {
-      // Fetch and analyze global news
-      const articles = await nexusAI.fetchNews();
-      const pulse = await nexusAI.analyzeGlobalPulse(articles);
+      // Fetch and analyze Omni-Data
+      const omniData = await synapticForgeAI.fetchOmniData();
+      const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
       
-      setGlobalPulse(pulse);
-      setLastUpdate(new Date());
-
-      // If user has set personal state, blend immediately
-      if (personalState) {
-        const blended = await nexusAI.blendPersonalResonance(pulse, personalState);
-        setResonanceProfile(blended);
-      }
-
+      setEmergentVectors(vectors);
+      setSystemStatus('ready');
+      setIsInitialized(true);
     } catch (error) {
-      console.error('Error initializing PSYCHE-LINK:', error);
+      console.error('Error initializing SYNAPTIC FORGE:', error);
+      setSystemStatus('error');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Handle personal emotional state change
-  const handlePersonalStateChange = async (newState: PersonalEmotionalState) => {
-    setPersonalState(newState);
-    
-    if (globalPulse) {
-      setIsProcessing(true);
+  // Handle query submission
+  const handleQuerySubmit = async (queryContext: QueryContext) => {
+    setIsProcessing(true);
+    setSystemStatus('processing');
+    setForesightVisible(false);
+
+    try {
+      // Find most relevant strategic vector
+      const relevantVector = emergentVectors
+        .sort((a, b) => b.relevanceToUser - a.relevanceToUser)[0];
+
+      if (relevantVector) {
+        const construct = await synapticForgeAI.generateForesightConstruct(
+          relevantVector,
+          queryContext,
+          userProfile
+        );
+        
+        setForesightConstruct(construct);
+        setForesightVisible(true);
+        
+        // Update cognitive state based on construct
+        setCognitiveState(prev => ({
+          ...prev,
+          currentBrainwaveTarget: `${construct.sensoryDirectives.targetBrainwaveFrequency.type.toUpperCase()} (${construct.sensoryDirectives.targetBrainwaveFrequency.range})`,
+          isOptimized: true
+        }));
+      }
+      
+      setSystemStatus('ready');
+    } catch (error) {
+      console.error('Error processing query:', error);
+      setSystemStatus('error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle feedback
+  const handleFeedback = async (feedback: string) => {
+    if (foresightConstruct) {
       try {
-        const blended = await nexusAI.blendPersonalResonance(globalPulse, newState);
-        setResonanceProfile(blended);
+        const updatedProfile = await synapticForgeAI.refineLearningProfile(
+          userProfile,
+          feedback,
+          foresightConstruct
+        );
+        setUserProfile(updatedProfile);
+        
+        // Add to validation history
+        const validation = {
+          insightId: foresightConstruct.id,
+          rating: feedback === 'useful' ? 5 : feedback === 'needs_detail' ? 3 : 1,
+          feedback: feedback as any,
+          timestamp: new Date().toISOString()
+        };
+        
+        setUserProfile(prev => ({
+          ...prev,
+          validatedInsightsHistory: [...prev.validatedInsightsHistory, validation]
+        }));
       } catch (error) {
-        console.error('Error blending resonance:', error);
-      } finally {
-        setIsProcessing(false);
+        console.error('Error processing feedback:', error);
       }
     }
   };
 
-  // Auto-refresh global pulse every 60 seconds
+  // Auto-refresh vectors every 5 minutes
   useEffect(() => {
-    if (!isActive) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const articles = await nexusAI.fetchNews();
-        const pulse = await nexusAI.analyzeGlobalPulse(articles);
-        setGlobalPulse(pulse);
-        setLastUpdate(new Date());
-
-        // Re-blend if personal state exists
-        if (personalState) {
-          const blended = await nexusAI.blendPersonalResonance(pulse, personalState);
-          setResonanceProfile(blended);
+    if (isInitialized) {
+      const interval = setInterval(async () => {
+        try {
+          const omniData = await synapticForgeAI.fetchOmniData();
+          const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
+          setEmergentVectors(vectors);
+        } catch (error) {
+          console.error('Error refreshing vectors:', error);
         }
-      } catch (error) {
-        console.error('Error refreshing global pulse:', error);
-      }
-    }, 60000); // 60 seconds
+      }, 5 * 60 * 1000); // 5 minutes
 
-    return () => clearInterval(interval);
-  }, [isActive, personalState]);
+      return () => clearInterval(interval);
+    }
+  }, [isInitialized, userProfile]);
+
+  // Initialize on mount
+  useEffect(() => {
+    initializeSystem();
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
-      {/* Psyche Visualizer - Full Screen Background */}
-      <PsycheVisualizer resonanceProfile={resonanceProfile} />
+      {/* Cognitive Canvas - Full Screen Background */}
+      <CognitiveCanvas 
+        foresightConstruct={foresightConstruct}
+        isProcessing={isProcessing}
+        className="absolute inset-0"
+      />
 
-      {/* Psyche Audioscape */}
-      <PsycheAudioscape resonanceProfile={resonanceProfile} enabled={audioEnabled} />
-
-      {/* Header Controls */}
-      <div className="fixed top-6 right-6 z-40 flex items-center gap-4">
-        {/* Audio Toggle */}
-        <button
-          onClick={() => setAudioEnabled(!audioEnabled)}
-          className={`p-3 rounded-full backdrop-blur-xl border border-white/20 transition-all duration-200 ${
-            audioEnabled 
-              ? 'bg-gradient-to-r from-green-600/80 to-emerald-600/80 text-white' 
-              : 'bg-gray-900/80 text-gray-400 hover:text-white'
-          }`}
-        >
-          {audioEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-        </button>
-
-        {/* Status Indicator */}
-        {lastUpdate && (
-          <div className="text-right text-xs text-white/60 backdrop-blur-xl bg-black/20 px-3 py-2 rounded-lg border border-white/10">
-            <div>Global Pulse</div>
-            <div>{lastUpdate.toLocaleTimeString()}</div>
-          </div>
-        )}
-      </div>
-
-      {/* Personal Emotional Nexus */}
-      <PersonalEmotionalNexus
-        onStateChange={handlePersonalStateChange}
-        isActive={isActive}
-        onToggle={() => setIsActive(!isActive)}
+      {/* Adaptive Audio Engine */}
+      <AdaptiveAudioEngine
+        foresightConstruct={foresightConstruct}
+        cognitiveState={cognitiveState}
+        enabled={audioEnabled}
+        onToggle={() => setAudioEnabled(!audioEnabled)}
       />
 
       {/* Main Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
-        {!isActive ? (
-          /* Welcome State */
+        {!isInitialized ? (
+          /* Initialization State */
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -141,104 +189,127 @@ function App() {
               transition={{ delay: 0.3 }}
               className="mb-8"
             >
-              <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10">
-                <Brain className="w-20 h-20 text-purple-400" />
+              <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30">
+                <Brain className="w-20 h-20 text-emerald-400" />
               </div>
               
-              <h1 className="text-5xl font-bold mb-4 font-orbitron bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
-                PSYCHE-LINK
+              <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
+                SYNAPTIC FORGE
               </h1>
-              <h2 className="text-2xl font-light mb-6 text-purple-300 font-orbitron">
-                The Collective Conscious Weaver
+              <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
+                The Adaptive Foresight Engine
               </h2>
               <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-                Establish a neural-sensory link between your personal psycho-emotional state 
-                and the real-time collective consciousness of the world. Experience the global pulse 
-                through immersive visuals, binaural soundscapes, and shared consciousness streams.
+                A revolutionary AI co-processor that learns your strategic thinking patterns and provides 
+                prescriptive foresight constructs optimized for your cognitive state. Experience the future 
+                of augmented intelligence.
               </p>
               
-              <motion.button
-                onClick={initializePsycheLink}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg font-orbitron flex items-center gap-4 mx-auto"
-              >
-                <Power className="w-8 h-8" />
-                Activate PSYCHE-LINK
-              </motion.button>
+              {systemStatus === 'initializing' && (
+                <motion.div
+                  className="flex items-center justify-center gap-4"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                  <span className="text-emerald-400 font-medium font-space-grotesk">
+                    Initializing Cognitive Nexus...
+                  </span>
+                </motion.div>
+              )}
+
+              {systemStatus === 'error' && (
+                <motion.button
+                  onClick={initializeSystem}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
+                >
+                  <Zap className="w-8 h-8" />
+                  Retry Initialization
+                </motion.button>
+              )}
             </motion.div>
           </motion.div>
         ) : (
           /* Active State */
           <div className="w-full max-w-6xl mx-auto">
-            {/* Central Nexus Avatar */}
-            <div className="text-center mb-12">
-              <NexusAvatar 
-                resonanceProfile={resonanceProfile}
-                isProcessing={isProcessing}
-              />
-            </div>
+            {/* System Status Display */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-12"
+            >
+              <div className="inline-flex items-center gap-4 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-emerald-400" />
+                  <span className="text-emerald-400 font-medium">SYNAPTIC FORGE</span>
+                </div>
+                <div className="w-px h-6 bg-white/20" />
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    systemStatus === 'ready' ? 'bg-emerald-400' :
+                    systemStatus === 'processing' ? 'bg-amber-400 animate-pulse' :
+                    'bg-red-400'
+                  }`} />
+                  <span className="text-white text-sm capitalize">{systemStatus}</span>
+                </div>
+                <div className="w-px h-6 bg-white/20" />
+                <div className="text-white text-sm">
+                  {emergentVectors.length} Strategic Vectors Active
+                </div>
+              </div>
+            </motion.div>
 
-            {isProcessing && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center mb-8"
-              >
-                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-400" />
-                <div className="text-purple-400 font-medium font-orbitron">Weaving Consciousness...</div>
-                <div className="text-sm text-gray-500 mt-1">Processing global emotional frequencies</div>
-              </motion.div>
-            )}
-
-            {/* Global Pulse Data Display */}
-            {globalPulse && !isProcessing && (
+            {/* Emergent Vectors Display */}
+            {emergentVectors.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
               >
-                {/* Dominant Frequencies */}
-                <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                  <h3 className="text-lg font-bold text-white mb-4 font-orbitron">Emotional Frequencies</h3>
-                  <div className="space-y-2">
-                    {globalPulse.dominantEmotionalFrequencies.map((freq, index) => (
-                      <div key={index} className="text-purple-300 text-sm">{freq}</div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Energetic State */}
-                <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                  <h3 className="text-lg font-bold text-white mb-4 font-orbitron">Energetic State</h3>
-                  <div className="text-cyan-300 text-lg capitalize">{globalPulse.prevailingEnergeticState}</div>
-                  <div className="text-gray-400 text-sm mt-2">Intensity: {globalPulse.numericalIntensity}/10</div>
-                </div>
-
-                {/* Collective Symbols */}
-                <div className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                  <h3 className="text-lg font-bold text-white mb-4 font-orbitron">Collective Symbols</h3>
-                  <div className="space-y-2">
-                    {globalPulse.collectiveSymbols.map((symbol, index) => (
-                      <div key={index} className="text-emerald-300 text-sm">{symbol}</div>
-                    ))}
-                  </div>
-                </div>
+                {emergentVectors.slice(0, 6).map((vector, index) => (
+                  <motion.div
+                    key={vector.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-bold text-white font-space-grotesk">{vector.title}</h3>
+                      <div className="text-right">
+                        <div className="text-emerald-400 font-bold">{Math.round(vector.confidenceScore * 100)}%</div>
+                        <div className="text-xs text-gray-400">Confidence</div>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 text-sm mb-4">{vector.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500 capitalize">{vector.impactTimeframe.replace('_', ' ')}</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full" />
+                        <span className="text-xs text-emerald-400">
+                          {Math.round(vector.relevanceToUser * 100)}% Relevant
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </motion.div>
             )}
 
             {/* Instructions */}
-            {!personalState && !isProcessing && (
+            {!foresightConstruct && !isProcessing && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-center"
               >
-                <p className="text-gray-400 font-orbitron">
-                  Click the Brain icon to calibrate your personal emotional state
+                <p className="text-gray-400 font-space-grotesk text-lg">
+                  Click the Brain icon to forge strategic insights
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
-                  Your psyche will blend with the global consciousness
+                  Your AI co-processor is ready to analyze emergent strategic vectors
                 </p>
               </motion.div>
             )}
@@ -246,8 +317,20 @@ function App() {
         )}
       </div>
 
-      {/* Shared Consciousness Stream */}
-      <SharedConsciousnessStream resonanceProfile={resonanceProfile} />
+      {/* Query Forge Interface */}
+      <QueryForge
+        onQuerySubmit={handleQuerySubmit}
+        isProcessing={isProcessing}
+        isVisible={queryForgeVisible}
+        onToggle={() => setQueryForgeVisible(!queryForgeVisible)}
+      />
+
+      {/* Foresight Display */}
+      <ForesightDisplay
+        foresightConstruct={foresightConstruct}
+        onFeedback={handleFeedback}
+        isVisible={foresightVisible}
+      />
     </div>
   );
 }

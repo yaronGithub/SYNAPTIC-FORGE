@@ -7,7 +7,7 @@ const openai = new OpenAI({
 });
 
 class SynapticForgeAIService {
-  private hasApiKey = Boolean(import.meta.env.VITE_OPENAI_API_KEY);
+  private hasApiKey = Boolean(import.meta.env.VITE_OPENAI_API_KEY && import.meta.env.VITE_OPENAI_API_KEY !== 'demo-key');
 
   async fetchOmniData(): Promise<OmniDataPoint[]> {
     const apiKey = import.meta.env.VITE_NEWS_API_KEY;
@@ -87,6 +87,7 @@ Return only valid JSON.`;
 
   async analyzeEmergentVectors(omniData: OmniDataPoint[], userProfile: UserProfile): Promise<EmergentStrategicVector[]> {
     if (!this.hasApiKey) {
+      console.log('Using mock vectors - OpenAI API key not configured');
       return this.generateMockVectors();
     }
 
@@ -133,7 +134,7 @@ Return only valid JSON array.`;
         ...vector
       }));
     } catch (error) {
-      console.error('Error analyzing emergent vectors:', error);
+      console.warn('OpenAI API unavailable, using mock vectors:', error.message);
       return this.generateMockVectors();
     }
   }
@@ -144,6 +145,7 @@ Return only valid JSON array.`;
     userProfile: UserProfile
   ): Promise<ForesightConstruct> {
     if (!this.hasApiKey) {
+      console.log('Using mock foresight construct - OpenAI API key not configured');
       return this.generateMockForesightConstruct(strategicVector, queryContext);
     }
 
@@ -189,7 +191,7 @@ Return only valid JSON.`;
         ...constructData
       };
     } catch (error) {
-      console.error('Error generating foresight construct:', error);
+      console.warn('OpenAI API unavailable, using mock foresight construct:', error.message);
       return this.generateMockForesightConstruct(strategicVector, queryContext);
     }
   }
@@ -200,6 +202,7 @@ Return only valid JSON.`;
     originalInsight: ForesightConstruct
   ): Promise<UserProfile> {
     if (!this.hasApiKey) {
+      console.log('Using mock profile refinement - OpenAI API key not configured');
       return this.mockProfileRefinement(userProfile, feedback);
     }
 
@@ -224,7 +227,7 @@ Return ONLY the updated user profile as valid JSON with the same structure.`;
 
       return JSON.parse(content);
     } catch (error) {
-      console.error('Error refining learning profile:', error);
+      console.warn('OpenAI API unavailable, using mock profile refinement:', error.message);
       return this.mockProfileRefinement(userProfile, feedback);
     }
   }

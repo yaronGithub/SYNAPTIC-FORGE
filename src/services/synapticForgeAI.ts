@@ -12,7 +12,8 @@ class SynapticForgeAIService {
   async fetchOmniData(): Promise<OmniDataPoint[]> {
     const apiKey = import.meta.env.VITE_NEWS_API_KEY;
     if (!apiKey) {
-      return this.getMockOmniData();
+      console.log('Using enhanced mock data - News API key not configured');
+      return this.getEnhancedMockOmniData();
     }
 
     try {
@@ -38,13 +39,13 @@ class SynapticForgeAIService {
       return allData.slice(0, 50); // Maintain rolling window
     } catch (error) {
       console.error('Error fetching Omni-Data:', error);
-      return this.getMockOmniData();
+      return this.getEnhancedMockOmniData();
     }
   }
 
   async enrichDataPoint(rawData: any): Promise<OmniDataPoint> {
     if (!this.hasApiKey) {
-      return this.generateMockDataPoint(rawData);
+      return this.generateEnhancedMockDataPoint(rawData);
     }
 
     try {
@@ -60,7 +61,7 @@ Extract and return ONLY a JSON object with:
 Return only valid JSON.`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 300,
         temperature: 0.7
@@ -81,14 +82,14 @@ Return only valid JSON.`;
       };
     } catch (error) {
       console.error('Error enriching data point:', error);
-      return this.generateMockDataPoint(rawData);
+      return this.generateEnhancedMockDataPoint(rawData);
     }
   }
 
   async analyzeEmergentVectors(omniData: OmniDataPoint[], userProfile: UserProfile): Promise<EmergentStrategicVector[]> {
     if (!this.hasApiKey) {
-      console.log('Using mock vectors - OpenAI API key not configured');
-      return this.generateMockVectors();
+      console.log('Using enhanced mock vectors - OpenAI API key not configured');
+      return this.generateEnhancedMockVectors();
     }
 
     try {
@@ -105,7 +106,7 @@ Return only valid JSON.`;
 
 ${dataContext}
 
-Identify 3-5 high-probability emergent strategic vectors. Each vector should represent a convergent pattern of change with strategic implications.
+Identify 5-7 high-probability emergent strategic vectors. Each vector should represent a convergent pattern of change with strategic implications.
 
 Return ONLY a JSON array of objects with:
 - title: Strategic vector name (max 60 chars)
@@ -118,9 +119,9 @@ Return ONLY a JSON array of objects with:
 Return only valid JSON array.`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 800,
+        max_tokens: 1000,
         temperature: 0.8
       });
 
@@ -134,8 +135,8 @@ Return only valid JSON array.`;
         ...vector
       }));
     } catch (error) {
-      console.warn('OpenAI API unavailable, using mock vectors:', error.message);
-      return this.generateMockVectors();
+      console.warn('OpenAI API unavailable, using enhanced mock vectors:', error.message);
+      return this.generateEnhancedMockVectors();
     }
   }
 
@@ -145,8 +146,8 @@ Return only valid JSON array.`;
     userProfile: UserProfile
   ): Promise<ForesightConstruct> {
     if (!this.hasApiKey) {
-      console.log('Using mock foresight construct - OpenAI API key not configured');
-      return this.generateMockForesightConstruct(strategicVector, queryContext);
+      console.log('Using enhanced mock foresight construct - OpenAI API key not configured');
+      return this.generateEnhancedMockForesightConstruct(strategicVector, queryContext);
     }
 
     try {
@@ -173,9 +174,9 @@ Return ONLY a JSON object with:
 Return only valid JSON.`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
+        max_tokens: 800,
         temperature: 0.9
       });
 
@@ -191,8 +192,8 @@ Return only valid JSON.`;
         ...constructData
       };
     } catch (error) {
-      console.warn('OpenAI API unavailable, using mock foresight construct:', error.message);
-      return this.generateMockForesightConstruct(strategicVector, queryContext);
+      console.warn('OpenAI API unavailable, using enhanced mock foresight construct:', error.message);
+      return this.generateEnhancedMockForesightConstruct(strategicVector, queryContext);
     }
   }
 
@@ -202,8 +203,8 @@ Return only valid JSON.`;
     originalInsight: ForesightConstruct
   ): Promise<UserProfile> {
     if (!this.hasApiKey) {
-      console.log('Using mock profile refinement - OpenAI API key not configured');
-      return this.mockProfileRefinement(userProfile, feedback);
+      console.log('Using enhanced mock profile refinement - OpenAI API key not configured');
+      return this.enhancedMockProfileRefinement(userProfile, feedback);
     }
 
     try {
@@ -216,9 +217,9 @@ Update the user's learned biases and refine AI personality evolution stage based
 Return ONLY the updated user profile as valid JSON with the same structure.`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 500,
+        max_tokens: 600,
         temperature: 0.7
       });
 
@@ -227,119 +228,236 @@ Return ONLY the updated user profile as valid JSON with the same structure.`;
 
       return JSON.parse(content);
     } catch (error) {
-      console.warn('OpenAI API unavailable, using mock profile refinement:', error.message);
-      return this.mockProfileRefinement(userProfile, feedback);
+      console.warn('OpenAI API unavailable, using enhanced mock profile refinement:', error.message);
+      return this.enhancedMockProfileRefinement(userProfile, feedback);
     }
   }
 
-  private getMockOmniData(): OmniDataPoint[] {
+  private getEnhancedMockOmniData(): OmniDataPoint[] {
     return [
       {
         id: 'mock-1',
         title: 'Quantum Computing Breakthrough Achieves Commercial Viability',
-        description: 'Major tech consortium announces first commercially viable quantum processor',
+        description: 'Major tech consortium announces first commercially viable quantum processor for enterprise applications',
         source: 'TechCrunch',
         publishedAt: new Date().toISOString(),
-        industryRelevance: 0.9,
-        impactPotential: 0.95,
-        noveltyScore: 0.8,
-        geopoliticalContext: ['Global', 'US', 'China'],
-        enrichedTags: ['quantum_computing', 'tech_breakthrough', 'market_disruption']
+        industryRelevance: 0.95,
+        impactPotential: 0.98,
+        noveltyScore: 0.9,
+        geopoliticalContext: ['Global', 'US', 'China', 'EU'],
+        enrichedTags: ['quantum_computing', 'tech_breakthrough', 'market_disruption', 'enterprise_adoption']
       },
       {
         id: 'mock-2',
         title: 'AI Regulation Framework Passes Global Standards Committee',
-        description: 'International AI governance standards approved by 50+ nations',
+        description: 'International AI governance standards approved by 50+ nations, setting new compliance requirements',
         source: 'Reuters',
         publishedAt: new Date(Date.now() - 3600000).toISOString(),
+        industryRelevance: 0.88,
+        impactPotential: 0.85,
+        noveltyScore: 0.75,
+        geopoliticalContext: ['Global', 'EU', 'US', 'Asia-Pacific'],
+        enrichedTags: ['ai_regulation', 'policy_shift', 'compliance_requirements', 'global_governance']
+      },
+      {
+        id: 'mock-3',
+        title: 'Sustainable Energy Storage Revolution Accelerates',
+        description: 'New battery technology promises 10x energy density, transforming renewable energy viability',
+        source: 'Nature Energy',
+        publishedAt: new Date(Date.now() - 7200000).toISOString(),
+        industryRelevance: 0.92,
+        impactPotential: 0.94,
+        noveltyScore: 0.88,
+        geopoliticalContext: ['Global', 'Nordic', 'California'],
+        enrichedTags: ['energy_storage', 'sustainability', 'tech_breakthrough', 'climate_solution']
+      },
+      {
+        id: 'mock-4',
+        title: 'Autonomous Supply Chain Networks Emerge',
+        description: 'AI-driven supply chains demonstrate self-optimization and predictive risk management',
+        source: 'Supply Chain Quarterly',
+        publishedAt: new Date(Date.now() - 10800000).toISOString(),
         industryRelevance: 0.85,
-        impactPotential: 0.8,
-        noveltyScore: 0.7,
-        geopoliticalContext: ['Global', 'EU', 'US'],
-        enrichedTags: ['ai_regulation', 'policy_shift', 'compliance_requirements']
+        impactPotential: 0.82,
+        noveltyScore: 0.78,
+        geopoliticalContext: ['Global', 'Asia', 'North America'],
+        enrichedTags: ['supply_chain', 'automation', 'ai_optimization', 'risk_management']
+      },
+      {
+        id: 'mock-5',
+        title: 'Decentralized Finance Reaches Institutional Adoption Tipping Point',
+        description: 'Major banks announce DeFi integration strategies, signaling mainstream financial transformation',
+        source: 'Financial Times',
+        publishedAt: new Date(Date.now() - 14400000).toISOString(),
+        industryRelevance: 0.90,
+        impactPotential: 0.87,
+        noveltyScore: 0.72,
+        geopoliticalContext: ['Global', 'Switzerland', 'Singapore', 'US'],
+        enrichedTags: ['defi', 'financial_transformation', 'institutional_adoption', 'blockchain']
       }
     ];
   }
 
-  private generateMockDataPoint(rawData: any): OmniDataPoint {
+  private generateEnhancedMockDataPoint(rawData: any): OmniDataPoint {
+    const mockEnrichments = [
+      {
+        industryRelevance: 0.85,
+        impactPotential: 0.78,
+        noveltyScore: 0.82,
+        geopoliticalContext: ['Global', 'US', 'EU'],
+        enrichedTags: ['tech_innovation', 'market_shift', 'strategic_opportunity']
+      },
+      {
+        industryRelevance: 0.72,
+        impactPotential: 0.88,
+        noveltyScore: 0.65,
+        geopoliticalContext: ['Asia-Pacific', 'Global'],
+        enrichedTags: ['regulatory_change', 'compliance_shift', 'policy_impact']
+      }
+    ];
+
+    const enrichment = mockEnrichments[Math.floor(Math.random() * mockEnrichments.length)];
+
     return {
       id: `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: rawData.title,
       description: rawData.description || '',
       source: rawData.source?.name || 'Unknown',
       publishedAt: rawData.publishedAt,
-      industryRelevance: Math.random() * 0.8 + 0.2,
-      impactPotential: Math.random() * 0.9 + 0.1,
-      noveltyScore: Math.random() * 0.7 + 0.3,
-      geopoliticalContext: ['Global'],
-      enrichedTags: ['strategic_shift', 'market_evolution', 'innovation']
+      ...enrichment
     };
   }
 
-  private generateMockVectors(): EmergentStrategicVector[] {
+  private generateEnhancedMockVectors(): EmergentStrategicVector[] {
     return [
       {
         id: 'vector-1',
         title: 'Quantum-AI Convergence Acceleration',
-        description: 'Rapid convergence of quantum computing and AI creating unprecedented computational capabilities',
-        confidenceScore: 0.85,
-        leadingIndicators: ['Quantum processor commercialization', 'AI model complexity scaling', 'Cross-industry adoption'],
+        description: 'Rapid convergence of quantum computing and AI creating unprecedented computational capabilities for strategic advantage',
+        confidenceScore: 0.87,
+        leadingIndicators: ['Quantum processor commercialization', 'AI model complexity scaling', 'Cross-industry quantum adoption', 'Venture capital quantum investments'],
         impactTimeframe: 'medium_term',
-        relevanceToUser: 0.9
+        relevanceToUser: 0.92
       },
       {
         id: 'vector-2',
         title: 'Regulatory Harmonization Wave',
-        description: 'Global alignment on AI and tech governance creating new compliance landscapes',
-        confidenceScore: 0.75,
-        leadingIndicators: ['International standards adoption', 'Cross-border policy alignment', 'Industry self-regulation'],
+        description: 'Global alignment on AI and tech governance creating new compliance landscapes and competitive dynamics',
+        confidenceScore: 0.78,
+        leadingIndicators: ['International standards adoption', 'Cross-border policy alignment', 'Industry self-regulation initiatives', 'Compliance technology emergence'],
         impactTimeframe: 'short_term',
-        relevanceToUser: 0.8
+        relevanceToUser: 0.85
+      },
+      {
+        id: 'vector-3',
+        title: 'Sustainable Technology Imperative',
+        description: 'Climate-driven technology transformation becoming primary competitive differentiator across industries',
+        confidenceScore: 0.91,
+        leadingIndicators: ['Carbon pricing expansion', 'Green technology breakthroughs', 'ESG investment flows', 'Regulatory climate mandates'],
+        impactTimeframe: 'immediate',
+        relevanceToUser: 0.88
+      },
+      {
+        id: 'vector-4',
+        title: 'Autonomous Economic Networks',
+        description: 'AI-driven autonomous systems creating self-optimizing economic networks and supply chains',
+        confidenceScore: 0.82,
+        leadingIndicators: ['Supply chain AI adoption', 'Autonomous logistics growth', 'Smart contract proliferation', 'Economic algorithm sophistication'],
+        impactTimeframe: 'medium_term',
+        relevanceToUser: 0.79
+      },
+      {
+        id: 'vector-5',
+        title: 'Decentralized Financial Infrastructure',
+        description: 'Traditional finance integration with decentralized systems creating hybrid financial architectures',
+        confidenceScore: 0.75,
+        leadingIndicators: ['Bank DeFi partnerships', 'CBDC development', 'Institutional crypto adoption', 'Regulatory clarity emergence'],
+        impactTimeframe: 'short_term',
+        relevanceToUser: 0.83
+      },
+      {
+        id: 'vector-6',
+        title: 'Human-AI Collaborative Intelligence',
+        description: 'Evolution of human-AI partnerships creating new forms of augmented decision-making and creativity',
+        confidenceScore: 0.89,
+        leadingIndicators: ['AI assistant sophistication', 'Human-AI interface innovation', 'Collaborative AI tools', 'Cognitive augmentation research'],
+        impactTimeframe: 'immediate',
+        relevanceToUser: 0.95
       }
     ];
   }
 
-  private generateMockForesightConstruct(
+  private generateEnhancedMockForesightConstruct(
     strategicVector: EmergentStrategicVector,
     queryContext: QueryContext
   ): ForesightConstruct {
+    const mockConstructs = {
+      'strategic_analysis': {
+        recommendation: 'Establish quantum-AI research partnerships and begin compliance framework development to position for the convergence wave while building competitive moats.',
+        proofPoints: [
+          'Quantum computing investments increased 400% in the last 18 months across major tech companies',
+          'Early quantum-AI hybrid implementations showing 15x performance improvements in optimization problems',
+          'Regulatory frameworks emerging in EU and US creating first-mover advantages for compliant organizations',
+          'Venture capital flowing toward quantum-AI startups at unprecedented rates ($2.3B in Q4 2024)',
+          'Major consulting firms building quantum-AI practice areas to serve enterprise demand'
+        ],
+        challenges: [
+          'Technical complexity requires specialized talent acquisition and significant R&D investment',
+          'Regulatory uncertainty may delay implementation timelines and increase compliance costs',
+          'Market timing risk if quantum-AI convergence takes longer than anticipated'
+        ]
+      },
+      'innovation_opportunities': {
+        recommendation: 'Develop quantum-enhanced AI products targeting financial modeling and drug discovery markets where computational advantages translate directly to revenue.',
+        proofPoints: [
+          'Financial institutions reporting 25% improvement in risk modeling with quantum-classical hybrid systems',
+          'Pharmaceutical companies achieving 60% reduction in drug discovery timelines using quantum-AI approaches',
+          'Early quantum-AI patents showing strong licensing potential and defensive value',
+          'Government contracts increasingly specifying quantum-AI capabilities for national security applications'
+        ],
+        challenges: [
+          'High capital requirements for quantum infrastructure development',
+          'Limited quantum talent pool creating recruitment and retention challenges'
+        ]
+      }
+    };
+
+    const construct = mockConstructs[queryContext.type] || mockConstructs['strategic_analysis'];
+
     return {
       id: `mock-construct-${Date.now()}`,
       strategicVector,
-      conciseActionableRecommendation: 'Establish quantum-AI research partnerships and begin compliance framework development to position for the convergence wave.',
-      supportingProofPoints: [
-        'Quantum computing investments increased 300% in the last 18 months',
-        'Major tech companies are forming quantum-AI hybrid teams',
-        'Early adopters are seeing 10x performance improvements in specific use cases'
-      ],
-      potentialChallenges: [
-        'Technical complexity requires specialized talent acquisition',
-        'Regulatory uncertainty may delay implementation timelines'
-      ],
+      conciseActionableRecommendation: construct.recommendation,
+      supportingProofPoints: construct.proofPoints,
+      potentialChallenges: construct.challenges,
       sensoryDirectives: {
         synthesizedVoiceTone: 'authoritative',
         targetBrainwaveFrequency: {
           type: 'beta',
           range: '18-25 Hz',
-          purpose: 'Enhanced analytical focus and decision clarity'
+          purpose: 'Enhanced analytical focus and strategic decision clarity'
         },
         cognitiveStateDirective: 'Enhance Strategic Decision Clarity',
         dynamicVisualMetaphor: 'Interconnected Quantum Neural Web',
         colorGradients: ['#00FF88', '#0088FF', '#8800FF'],
-        motionIntensity: 7
+        motionIntensity: 8
       },
       timestamp: new Date().toISOString()
     };
   }
 
-  private mockProfileRefinement(userProfile: UserProfile, feedback: string): UserProfile {
+  private enhancedMockProfileRefinement(userProfile: UserProfile, feedback: string): UserProfile {
     const updatedProfile = { ...userProfile };
     
-    // Simple mock refinement logic
+    // Enhanced learning logic
     if (feedback === 'useful') {
-      updatedProfile.aiPersonalityEvolutionStage = Math.min(10, updatedProfile.aiPersonalityEvolutionStage + 0.1);
-    } else if (feedback === 'irrelevant') {
+      updatedProfile.aiPersonalityEvolutionStage = Math.min(10, updatedProfile.aiPersonalityEvolutionStage + 0.2);
       updatedProfile.learnedBiases.preferredAnalysisDepth = 'detailed';
+    } else if (feedback === 'irrelevant') {
+      updatedProfile.learnedBiases.industryFocus = [...updatedProfile.learnedBiases.industryFocus, 'emerging_tech'];
+    } else if (feedback === 'needs_detail') {
+      updatedProfile.learnedBiases.preferredAnalysisDepth = 'comprehensive';
+      updatedProfile.learnedBiases.informationDensity = 'verbose';
     }
     
     return updatedProfile;

@@ -338,259 +338,263 @@ function App() {
       <div className="relative z-10 w-full">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
           {!isInitialized ? (
-            {/* Enhanced Initialization State */}
-            <div className="flex items-center justify-center min-h-screen">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center max-w-4xl mx-auto"
-              >
+            <>
+              {/* Enhanced Initialization State */}
+              <div className="flex items-center justify-center min-h-screen">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="mb-8"
+                  className="text-center max-w-4xl mx-auto"
                 >
-                  <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
-                    <AIPersonalityAvatar
-                      evolutionStage={userProfile.aiPersonalityEvolutionStage}
-                      isProcessing={true}
-                      learningRate={0.85}
-                    />
-                  </div>
-                  
-                  <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
-                    SYNAPTIC FORGE
-                  </h1>
-                  <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
-                    The Adaptive Foresight Engine
-                  </h2>
-                  <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-                    Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
-                    learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
-                  </p>
-                  
-                  {systemStatus === 'initializing' && (
-                    <motion.div
-                      className="flex flex-col items-center gap-4"
-                    >
-                      <motion.div
-                        className="flex items-center justify-center gap-4"
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      >
-                        <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-                        <span className="text-emerald-400 font-medium font-space-grotesk">
-                          Initializing Quantum Neural Networks...
-                        </span>
-                      </motion.div>
-                      
-                      {/* AI Insights Stream during initialization */}
-                      <div className="mt-6 max-w-md">
-                        <AIInsightStream insights={aiInsights} />
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {systemStatus === 'error' && (
-                    <motion.button
-                      onClick={initializeSystem}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
-                    >
-                      <Zap className="w-8 h-8" />
-                      Retry AI Initialization
-                    </motion.button>
-                  )}
-                </motion.div>
-              </motion.div>
-            </div>
-          ) : (
-            {/* Enhanced Active State - Now properly scrollable */}
-            <div className="space-y-8">
-              {/* Enhanced System Status Display */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center gap-6 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
-                  <div className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-emerald-400" />
-                    <span className="text-emerald-400 font-medium">SYNAPTIC FORGE</span>
-                  </div>
-                  <div className="w-px h-6 bg-white/20" />
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      systemStatus === 'ready' ? 'bg-emerald-400' :
-                      systemStatus === 'processing' ? 'bg-amber-400 animate-pulse' :
-                      'bg-red-400'
-                    }`} />
-                    <span className="text-white text-sm capitalize">{systemStatus}</span>
-                  </div>
-                  <div className="w-px h-6 bg-white/20" />
-                  <div className="text-white text-sm">
-                    AI Evolution: {userProfile.aiPersonalityEvolutionStage.toFixed(1)}/10
-                  </div>
-                  <div className="w-px h-6 bg-white/20" />
-                  <div className="text-white text-sm">
-                    {emergentVectors.length} Strategic Vectors
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* AI Agent Workflow */}
-              <AIAgentWorkflow
-                query={foresightConstruct?.strategicVector.title || ''}
-                isActive={workflowActive}
-                onComplete={(result) => {
-                  setAiInsights(prev => [...prev, '🤖 Autonomous workflow completed successfully']);
-                }}
-              />
-
-              {/* System Health Monitor */}
-              <SystemHealthMonitor />
-
-              {/* Anomaly Detection */}
-              <AnomalyDetectionAlert
-                isActive={isInitialized}
-                onDismiss={(anomalyId) => {
-                  setAiInsights(prev => [...prev, `🔕 Anomaly ${anomalyId} acknowledged and dismissed`]);
-                }}
-              />
-
-              {/* Real-time Analytics Dashboard */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <RealTimeAnalytics 
-                    data={realTimeData}
-                    vectors={emergentVectors}
-                    cognitiveState={cognitiveState}
-                  />
-                </div>
-                <div>
-                  <AIInsightStream insights={aiInsights} />
-                </div>
-              </div>
-
-              {/* Generated Data Visualization */}
-              {generatedVisualization && (
-                <GenerativeDataVisualization
-                  data={generatedVisualization.data}
-                  type={generatedVisualization.type}
-                  title={generatedVisualization.title}
-                  insight={generatedVisualization.insight}
-                />
-              )}
-
-              {/* Enhanced Emergent Vectors Display */}
-              {emergentVectors.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <div className="flex items-center gap-3 mb-6">
-                    <Sparkles className="w-6 h-6 text-emerald-400" />
-                    <h3 className="text-2xl font-bold text-white font-space-grotesk">
-                      Emergent Strategic Vectors
-                    </h3>
-                    <div className="text-sm text-gray-400">
-                      AI-identified patterns with {Math.round(emergentVectors.reduce((acc, v) => acc + v.confidenceScore, 0) / emergentVectors.length * 100)}% avg confidence
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mb-8"
+                  >
+                    <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
+                      <AIPersonalityAvatar
+                        evolutionStage={userProfile.aiPersonalityEvolutionStage}
+                        isProcessing={true}
+                        learningRate={0.85}
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {emergentVectors.slice(0, 6).map((vector, index) => (
+                    
+                    <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
+                      SYNAPTIC FORGE
+                    </h1>
+                    <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
+                      The Adaptive Foresight Engine
+                    </h2>
+                    <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+                      Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
+                      learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
+                    </p>
+                    
+                    {systemStatus === 'initializing' && (
                       <motion.div
-                        key={vector.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group"
-                        whileHover={{ scale: 1.02 }}
+                        className="flex flex-col items-center gap-4"
                       >
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-lg font-bold text-white font-space-grotesk group-hover:text-emerald-300 transition-colors">
-                            {vector.title}
-                          </h4>
-                          <div className="text-right">
-                            <div className="text-emerald-400 font-bold">{Math.round(vector.confidenceScore * 100)}%</div>
-                            <div className="text-xs text-gray-400">Confidence</div>
-                          </div>
-                        </div>
-                        <p className="text-gray-300 text-sm mb-4">{vector.description}</p>
+                        <motion.div
+                          className="flex items-center justify-center gap-4"
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                          <span className="text-emerald-400 font-medium font-space-grotesk">
+                            Initializing Quantum Neural Networks...
+                          </span>
+                        </motion.div>
                         
-                        {/* Leading Indicators */}
-                        <div className="mb-4">
-                          <div className="text-xs text-gray-400 mb-2">Leading Indicators:</div>
-                          <div className="flex flex-wrap gap-1">
-                            {vector.leadingIndicators.slice(0, 2).map((indicator, idx) => (
-                              <span key={idx} className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
-                                {indicator}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500 capitalize">{vector.impactTimeframe.replace('_', ' ')}</span>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3 text-emerald-400" />
-                            <span className="text-xs text-emerald-400">
-                              {Math.round(vector.relevanceToUser * 100)}% Relevant
-                            </span>
-                          </div>
+                        {/* AI Insights Stream during initialization */}
+                        <div className="mt-6 max-w-md">
+                          <AIInsightStream insights={aiInsights} />
                         </div>
                       </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                    )}
 
-              {/* Enhanced Instructions */}
-              {!foresightConstruct && !isProcessing && (
+                    {systemStatus === 'error' && (
+                      <motion.button
+                        onClick={initializeSystem}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
+                      >
+                        <Zap className="w-8 h-8" />
+                        Retry AI Initialization
+                      </motion.button>
+                    )}
+                  </motion.div>
+                </motion.div>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Enhanced Active State - Now properly scrollable */}
+              <div className="space-y-8">
+                {/* Enhanced System Status Display */}
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="text-center"
                 >
-                  <div className="bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 backdrop-blur-xl rounded-2xl p-8 border border-emerald-500/30">
-                    <AIPersonalityAvatar
-                      evolutionStage={userProfile.aiPersonalityEvolutionStage}
-                      isProcessing={false}
-                      learningRate={0.85}
-                      className="mb-4"
-                    />
-                    <h3 className="text-2xl font-bold text-white mb-4 font-space-grotesk">
-                      Ready for Strategic Analysis
-                    </h3>
-                    <p className="text-gray-300 font-space-grotesk text-lg mb-6">
-                      Your AI co-processor has analyzed global data streams and identified strategic vectors.
-                      Click the Brain icon to forge personalized insights.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                        <span>Real-time global data analysis</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                        <span>Autonomous AI agent workflows</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                        <span>Proactive anomaly detection</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                        <span>Multi-sensory cognitive optimization</span>
-                      </div>
+                  <div className="inline-flex items-center gap-6 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-emerald-400" />
+                      <span className="text-emerald-400 font-medium">SYNAPTIC FORGE</span>
+                    </div>
+                    <div className="w-px h-6 bg-white/20" />
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        systemStatus === 'ready' ? 'bg-emerald-400' :
+                        systemStatus === 'processing' ? 'bg-amber-400 animate-pulse' :
+                        'bg-red-400'
+                      }`} />
+                      <span className="text-white text-sm capitalize">{systemStatus}</span>
+                    </div>
+                    <div className="w-px h-6 bg-white/20" />
+                    <div className="text-white text-sm">
+                      AI Evolution: {userProfile.aiPersonalityEvolutionStage.toFixed(1)}/10
+                    </div>
+                    <div className="w-px h-6 bg-white/20" />
+                    <div className="text-white text-sm">
+                      {emergentVectors.length} Strategic Vectors
                     </div>
                   </div>
                 </motion.div>
-              )}
-            </div>
+
+                {/* AI Agent Workflow */}
+                <AIAgentWorkflow
+                  query={foresightConstruct?.strategicVector.title || ''}
+                  isActive={workflowActive}
+                  onComplete={(result) => {
+                    setAiInsights(prev => [...prev, '🤖 Autonomous workflow completed successfully']);
+                  }}
+                />
+
+                {/* System Health Monitor */}
+                <SystemHealthMonitor />
+
+                {/* Anomaly Detection */}
+                <AnomalyDetectionAlert
+                  isActive={isInitialized}
+                  onDismiss={(anomalyId) => {
+                    setAiInsights(prev => [...prev, `🔕 Anomaly ${anomalyId} acknowledged and dismissed`]);
+                  }}
+                />
+
+                {/* Real-time Analytics Dashboard */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
+                    <RealTimeAnalytics 
+                      data={realTimeData}
+                      vectors={emergentVectors}
+                      cognitiveState={cognitiveState}
+                    />
+                  </div>
+                  <div>
+                    <AIInsightStream insights={aiInsights} />
+                  </div>
+                </div>
+
+                {/* Generated Data Visualization */}
+                {generatedVisualization && (
+                  <GenerativeDataVisualization
+                    data={generatedVisualization.data}
+                    type={generatedVisualization.type}
+                    title={generatedVisualization.title}
+                    insight={generatedVisualization.insight}
+                  />
+                )}
+
+                {/* Enhanced Emergent Vectors Display */}
+                {emergentVectors.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="flex items-center gap-3 mb-6">
+                      <Sparkles className="w-6 h-6 text-emerald-400" />
+                      <h3 className="text-2xl font-bold text-white font-space-grotesk">
+                        Emergent Strategic Vectors
+                      </h3>
+                      <div className="text-sm text-gray-400">
+                        AI-identified patterns with {Math.round(emergentVectors.reduce((acc, v) => acc + v.confidenceScore, 0) / emergentVectors.length * 100)}% avg confidence
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {emergentVectors.slice(0, 6).map((vector, index) => (
+                        <motion.div
+                          key={vector.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group"
+                          whileHover={{ scale: 1.02 }}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-bold text-white font-space-grotesk group-hover:text-emerald-300 transition-colors">
+                              {vector.title}
+                            </h4>
+                            <div className="text-right">
+                              <div className="text-emerald-400 font-bold">{Math.round(vector.confidenceScore * 100)}%</div>
+                              <div className="text-xs text-gray-400">Confidence</div>
+                            </div>
+                          </div>
+                          <p className="text-gray-300 text-sm mb-4">{vector.description}</p>
+                          
+                          {/* Leading Indicators */}
+                          <div className="mb-4">
+                            <div className="text-xs text-gray-400 mb-2">Leading Indicators:</div>
+                            <div className="flex flex-wrap gap-1">
+                              {vector.leadingIndicators.slice(0, 2).map((indicator, idx) => (
+                                <span key={idx} className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                                  {indicator}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-500 capitalize">{vector.impactTimeframe.replace('_', ' ')}</span>
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3 text-emerald-400" />
+                              <span className="text-xs text-emerald-400">
+                                {Math.round(vector.relevanceToUser * 100)}% Relevant
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Enhanced Instructions */}
+                {!foresightConstruct && !isProcessing && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center"
+                  >
+                    <div className="bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 backdrop-blur-xl rounded-2xl p-8 border border-emerald-500/30">
+                      <AIPersonalityAvatar
+                        evolutionStage={userProfile.aiPersonalityEvolutionStage}
+                        isProcessing={false}
+                        learningRate={0.85}
+                        className="mb-4"
+                      />
+                      <h3 className="text-2xl font-bold text-white mb-4 font-space-grotesk">
+                        Ready for Strategic Analysis
+                      </h3>
+                      <p className="text-gray-300 font-space-grotesk text-lg mb-6">
+                        Your AI co-processor has analyzed global data streams and identified strategic vectors.
+                        Click the Brain icon to forge personalized insights.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                          <span>Real-time global data analysis</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                          <span>Autonomous AI agent workflows</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                          <span>Proactive anomaly detection</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                          <span>Multi-sensory cognitive optimization</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

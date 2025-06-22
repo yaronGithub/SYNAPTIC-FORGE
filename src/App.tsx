@@ -338,7 +338,7 @@ function App() {
       <div className="relative z-10 w-full">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
           {!isInitialized ? (
-            /* Enhanced Initialization State */}
+            {/* Enhanced Initialization State */}
             <div className="flex items-center justify-center min-h-screen">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -407,7 +407,7 @@ function App() {
               </motion.div>
             </div>
           ) : (
-            /* Enhanced Active State - Now properly scrollable */
+            {/* Enhanced Active State - Now properly scrollable */}
             <div className="space-y-8">
               {/* Enhanced System Status Display */}
               <motion.div

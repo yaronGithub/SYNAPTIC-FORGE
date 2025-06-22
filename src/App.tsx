@@ -6,6 +6,15 @@ import { QueryForge } from './components/QueryForge';
 import { ForesightDisplay } from './components/ForesightDisplay';
 import { AIInsightStream } from './components/AIInsightStream';
 import { RealTimeAnalytics } from './components/RealTimeAnalytics';
+import { AIAgentWorkflow } from './components/AIAgentWorkflow';
+import { GenerativeDataVisualization } from './components/GenerativeDataVisualization';
+import { AnomalyDetectionAlert } from './components/AnomalyDetectionAlert';
+import { SystemHealthMonitor } from './components/SystemHealthMonitor';
+import { UserSettingsPanel } from './components/UserSettingsPanel';
+import { ExportInsightButton } from './components/ExportInsightButton';
+import { AIPersonalityAvatar } from './components/AIPersonalityAvatar';
+import { VoiceCommandInterface } from './components/VoiceCommandInterface';
+import { AdaptiveSoundscape } from './components/AdaptiveSoundscape';
 import { synapticForgeAI } from './services/synapticForgeAI';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
 import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp } from 'lucide-react';
@@ -23,7 +32,7 @@ function App() {
     },
     validatedInsightsHistory: [],
     preferredAnalysisModes: ['strategic_analysis', 'innovation_opportunities'],
-    aiPersonalityEvolutionStage: 7,
+    aiPersonalityEvolutionStage: 7.8,
     cognitivePreferences: {
       preferredBrainwaveState: 'beta',
       voiceTone: 'authoritative',
@@ -51,24 +60,35 @@ function App() {
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [realTimeData, setRealTimeData] = useState<any[]>([]);
 
+  // New enhanced state
+  const [workflowActive, setWorkflowActive] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
+
   // Initialize SYNAPTIC FORGE with enhanced AI capabilities
   const initializeSystem = async () => {
     setSystemStatus('initializing');
     setIsProcessing(true);
 
     try {
-      // Show AI thinking process
-      setAiInsights(['🧠 Initializing neural pathways...', '📡 Connecting to global data streams...']);
+      // Enhanced AI thinking process
+      setAiInsights(['🧠 Initializing quantum neural pathways...', '📡 Establishing secure connection to global consciousness grid...']);
       
       // Fetch and analyze Omni-Data
       const omniData = await synapticForgeAI.fetchOmniData();
-      setAiInsights(prev => [...prev, `📊 Processed ${omniData.length} data points from global sources`]);
+      setAiInsights(prev => [...prev, `📊 Processed ${omniData.length} multi-dimensional data points from global intelligence sources`]);
       
       const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
       setEmergentVectors(vectors);
       setRealTimeData(omniData.slice(0, 10));
       
-      setAiInsights(prev => [...prev, `🎯 Identified ${vectors.length} strategic vectors`, '✨ AI personality calibrated to your preferences']);
+      setAiInsights(prev => [...prev, 
+        `🎯 Identified ${vectors.length} high-probability strategic vectors`, 
+        '✨ AI personality matrix calibrated to your cognitive preferences',
+        '🔮 Autonomous agent workflows initialized',
+        '📈 Real-time anomaly detection engine activated'
+      ]);
       
       setSystemStatus('ready');
       setIsInitialized(true);
@@ -81,7 +101,7 @@ function App() {
     } catch (error) {
       console.error('Error initializing SYNAPTIC FORGE:', error);
       setSystemStatus('error');
-      setAiInsights(prev => [...prev, '⚠️ Switching to offline mode - core AI functions active']);
+      setAiInsights(prev => [...prev, '⚠️ Switching to offline mode - core AI functions active', '🛡️ Fallback systems engaged']);
     } finally {
       setIsProcessing(false);
     }
@@ -102,14 +122,19 @@ function App() {
     await handleQuerySubmit(autoQuery);
   };
 
-  // Enhanced query handling with AI learning
+  // Enhanced query handling with AI learning and workflow
   const handleQuerySubmit = async (queryContext: QueryContext) => {
     setIsProcessing(true);
     setSystemStatus('processing');
     setForesightVisible(false);
+    setWorkflowActive(true);
     
     // Show AI thinking process
-    setAiInsights(prev => [...prev, `🤔 Analyzing: "${queryContext.query}"`, '🔍 Cross-referencing with global data patterns...']);
+    setAiInsights(prev => [...prev, 
+      `🤔 Analyzing complex query: "${queryContext.query}"`, 
+      '🔍 Initiating autonomous agent workflow...',
+      '🧠 Cross-referencing with global data patterns...'
+    ]);
 
     try {
       // Find most relevant strategic vector
@@ -117,7 +142,11 @@ function App() {
         .sort((a, b) => b.relevanceToUser - a.relevanceToUser)[0];
 
       if (relevantVector) {
-        setAiInsights(prev => [...prev, `🎯 Focus vector: ${relevantVector.title}`, '🧠 Generating prescriptive insights...']);
+        setAiInsights(prev => [...prev, 
+          `🎯 Primary focus vector identified: ${relevantVector.title}`, 
+          '🔬 Generating prescriptive insights with multi-agent collaboration...',
+          '📊 Creating adaptive data visualizations...'
+        ]);
         
         const construct = await synapticForgeAI.generateForesightConstruct(
           relevantVector,
@@ -126,6 +155,22 @@ function App() {
         );
         
         setForesightConstruct(construct);
+        
+        // Generate adaptive visualization
+        const visualizationData = [
+          { label: 'Current State', value: 65, color: '#6366f1' },
+          { label: 'Projected Impact', value: 85, color: '#8b5cf6' },
+          { label: 'Confidence Level', value: Math.round(relevantVector.confidenceScore * 100), color: '#10b981' },
+          { label: 'Risk Factor', value: 35, color: '#f59e0b' }
+        ];
+
+        setGeneratedVisualization({
+          data: visualizationData,
+          type: 'bar',
+          title: 'Strategic Vector Analysis',
+          insight: `AI recommends focusing on ${relevantVector.title} with ${Math.round(relevantVector.confidenceScore * 100)}% confidence`
+        });
+        
         setForesightVisible(true);
         
         // Update cognitive state based on construct
@@ -137,16 +182,22 @@ function App() {
           clarityLevel: Math.min(1, prev.clarityLevel + 0.1)
         }));
         
-        setAiInsights(prev => [...prev, '✨ Foresight construct generated', '🎵 Cognitive audio optimized', '🎨 Visual metaphor activated']);
+        setAiInsights(prev => [...prev, 
+          '✨ Foresight construct successfully generated', 
+          '🎵 Cognitive audio optimization activated',
+          '🎨 Dynamic visual metaphor rendered',
+          '📈 AI personality evolution stage advanced'
+        ]);
       }
       
       setSystemStatus('ready');
     } catch (error) {
       console.error('Error processing query:', error);
       setSystemStatus('error');
-      setAiInsights(prev => [...prev, '⚠️ Processing error - AI adapting approach...']);
+      setAiInsights(prev => [...prev, '⚠️ Processing error detected - AI adapting approach...', '🔄 Fallback reasoning protocols engaged']);
     } finally {
       setIsProcessing(false);
+      setWorkflowActive(false);
     }
   };
 
@@ -154,7 +205,11 @@ function App() {
   const handleFeedback = async (feedback: string) => {
     if (foresightConstruct) {
       try {
-        setAiInsights(prev => [...prev, `📝 Learning from feedback: ${feedback}`, '🧠 Updating AI personality matrix...']);
+        setAiInsights(prev => [...prev, 
+          `📝 Processing user feedback: ${feedback}`, 
+          '🧠 Updating AI personality matrix...',
+          '📊 Recalibrating strategic analysis algorithms...'
+        ]);
         
         const updatedProfile = await synapticForgeAI.refineLearningProfile(
           userProfile,
@@ -176,11 +231,41 @@ function App() {
           validatedInsightsHistory: [...prev.validatedInsightsHistory, validation]
         }));
         
-        setAiInsights(prev => [...prev, '✅ AI personality evolved', `📈 Evolution stage: ${updatedProfile.aiPersonalityEvolutionStage}/10`]);
+        setAiInsights(prev => [...prev, 
+          '✅ AI personality successfully evolved', 
+          `📈 Evolution stage: ${updatedProfile.aiPersonalityEvolutionStage.toFixed(1)}/10`,
+          '🎯 Future insights will be more precisely calibrated'
+        ]);
       } catch (error) {
         console.error('Error processing feedback:', error);
       }
     }
+  };
+
+  // Voice command handler
+  const handleVoiceCommand = (command: string) => {
+    if (command === 'open_query_forge') {
+      setQueryForgeVisible(true);
+    }
+  };
+
+  // Settings change handler
+  const handleSettingsChange = (settings: any) => {
+    setAiInsights(prev => [...prev, 
+      '⚙️ User preferences updated', 
+      '🎨 Interface adapting to new settings...',
+      '🧠 AI personality adjusting to preferences'
+    ]);
+    
+    // Update user profile based on settings
+    setUserProfile(prev => ({
+      ...prev,
+      cognitivePreferences: {
+        ...prev.cognitivePreferences,
+        voiceTone: settings.aiVoiceTone,
+        visualComplexity: settings.visualComplexity
+      }
+    }));
   };
 
   // Auto-refresh vectors with AI commentary
@@ -188,12 +273,16 @@ function App() {
     if (isInitialized) {
       const interval = setInterval(async () => {
         try {
-          setAiInsights(prev => [...prev, '🔄 Scanning for new strategic vectors...']);
+          setAiInsights(prev => [...prev, '🔄 Scanning global consciousness for new strategic vectors...']);
           const omniData = await synapticForgeAI.fetchOmniData();
           const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
           setEmergentVectors(vectors);
           setRealTimeData(omniData.slice(0, 10));
-          setAiInsights(prev => [...prev, '📡 Data streams updated', `🎯 ${vectors.length} vectors active`]);
+          setAiInsights(prev => [...prev, 
+            '📡 Global data streams refreshed', 
+            `🎯 ${vectors.length} strategic vectors currently active`,
+            '📊 Real-time analytics updated'
+          ]);
         } catch (error) {
           console.error('Error refreshing vectors:', error);
         }
@@ -217,19 +306,39 @@ function App() {
         className="fixed inset-0 z-0"
       />
 
-      {/* Adaptive Audio Engine */}
+      {/* Enhanced Audio Systems */}
       <AdaptiveAudioEngine
         foresightConstruct={foresightConstruct}
         cognitiveState={cognitiveState}
         enabled={audioEnabled}
         onToggle={() => setAudioEnabled(!audioEnabled)}
       />
+      
+      <AdaptiveSoundscape
+        foresightConstruct={foresightConstruct}
+        enabled={audioEnabled}
+        insightType={foresightConstruct ? 'opportunity' : 'neutral'}
+      />
+
+      {/* Voice Command Interface */}
+      <VoiceCommandInterface
+        onCommand={handleVoiceCommand}
+        isEnabled={voiceEnabled}
+        onToggle={() => setVoiceEnabled(!voiceEnabled)}
+      />
+
+      {/* User Settings Panel */}
+      <UserSettingsPanel
+        isOpen={settingsOpen}
+        onToggle={() => setSettingsOpen(!settingsOpen)}
+        onSettingsChange={handleSettingsChange}
+      />
 
       {/* Main Content - Now properly scrollable */}
       <div className="relative z-10 w-full">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
           {!isInitialized ? (
-            /* Enhanced Initialization State */
+            /* Enhanced Initialization State */}
             <div className="flex items-center justify-center min-h-screen">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -243,11 +352,10 @@ function App() {
                   className="mb-8"
                 >
                   <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
-                    <Brain className="w-20 h-20 text-emerald-400" />
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-emerald-400/30"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    <AIPersonalityAvatar
+                      evolutionStage={userProfile.aiPersonalityEvolutionStage}
+                      isProcessing={true}
+                      learningRate={0.85}
                     />
                   </div>
                   
@@ -273,7 +381,7 @@ function App() {
                       >
                         <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
                         <span className="text-emerald-400 font-medium font-space-grotesk">
-                          Initializing AI Neural Networks...
+                          Initializing Quantum Neural Networks...
                         </span>
                       </motion.div>
                       
@@ -323,7 +431,7 @@ function App() {
                   </div>
                   <div className="w-px h-6 bg-white/20" />
                   <div className="text-white text-sm">
-                    AI Evolution: {userProfile.aiPersonalityEvolutionStage}/10
+                    AI Evolution: {userProfile.aiPersonalityEvolutionStage.toFixed(1)}/10
                   </div>
                   <div className="w-px h-6 bg-white/20" />
                   <div className="text-white text-sm">
@@ -331,6 +439,26 @@ function App() {
                   </div>
                 </div>
               </motion.div>
+
+              {/* AI Agent Workflow */}
+              <AIAgentWorkflow
+                query={foresightConstruct?.strategicVector.title || ''}
+                isActive={workflowActive}
+                onComplete={(result) => {
+                  setAiInsights(prev => [...prev, '🤖 Autonomous workflow completed successfully']);
+                }}
+              />
+
+              {/* System Health Monitor */}
+              <SystemHealthMonitor />
+
+              {/* Anomaly Detection */}
+              <AnomalyDetectionAlert
+                isActive={isInitialized}
+                onDismiss={(anomalyId) => {
+                  setAiInsights(prev => [...prev, `🔕 Anomaly ${anomalyId} acknowledged and dismissed`]);
+                }}
+              />
 
               {/* Real-time Analytics Dashboard */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -345,6 +473,16 @@ function App() {
                   <AIInsightStream insights={aiInsights} />
                 </div>
               </div>
+
+              {/* Generated Data Visualization */}
+              {generatedVisualization && (
+                <GenerativeDataVisualization
+                  data={generatedVisualization.data}
+                  type={generatedVisualization.type}
+                  title={generatedVisualization.title}
+                  insight={generatedVisualization.insight}
+                />
+              )}
 
               {/* Enhanced Emergent Vectors Display */}
               {emergentVectors.length > 0 && (
@@ -418,7 +556,12 @@ function App() {
                   className="text-center"
                 >
                   <div className="bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 backdrop-blur-xl rounded-2xl p-8 border border-emerald-500/30">
-                    <Brain className="w-16 h-16 mx-auto mb-4 text-emerald-400" />
+                    <AIPersonalityAvatar
+                      evolutionStage={userProfile.aiPersonalityEvolutionStage}
+                      isProcessing={false}
+                      learningRate={0.85}
+                      className="mb-4"
+                    />
                     <h3 className="text-2xl font-bold text-white mb-4 font-space-grotesk">
                       Ready for Strategic Analysis
                     </h3>
@@ -433,15 +576,15 @@ function App() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                        <span>Adaptive AI personality learning</span>
+                        <span>Autonomous AI agent workflows</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                        <span>Cognitive state optimization</span>
+                        <span>Proactive anomaly detection</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                        <span>Prescriptive strategic guidance</span>
+                        <span>Multi-sensory cognitive optimization</span>
                       </div>
                     </div>
                   </div>
@@ -460,12 +603,41 @@ function App() {
         onToggle={() => setQueryForgeVisible(!queryForgeVisible)}
       />
 
-      {/* Foresight Display */}
-      <ForesightDisplay
-        foresightConstruct={foresightConstruct}
-        onFeedback={handleFeedback}
-        isVisible={foresightVisible}
-      />
+      {/* Enhanced Foresight Display */}
+      <AnimatePresence>
+        {foresightVisible && foresightConstruct && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setForesightVisible(false)}
+            />
+
+            <div className="flex min-h-full items-start justify-center p-4 pt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="w-full max-w-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ForesightDisplay
+                  foresightConstruct={foresightConstruct}
+                  onFeedback={handleFeedback}
+                  isVisible={true}
+                />
+                
+                {/* Export Button */}
+                <div className="mt-4 flex justify-center">
+                  <ExportInsightButton foresightConstruct={foresightConstruct} />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

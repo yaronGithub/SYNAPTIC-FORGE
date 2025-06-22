@@ -209,7 +209,7 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
       {/* Cognitive Canvas - Full Screen Background */}
       <CognitiveCanvas 
         foresightConstruct={foresightConstruct}
@@ -225,85 +225,87 @@ function App() {
         onToggle={() => setAudioEnabled(!audioEnabled)}
       />
 
-      {/* Scrollable Main Content */}
-      <div className="relative z-10 min-h-screen">
-        <div className="flex flex-col items-center justify-center p-6 min-h-screen">
+      {/* Main Content - Now properly scrollable */}
+      <div className="relative z-10 w-full">
+        <div className="container mx-auto px-6 py-8 max-w-7xl">
           {!isInitialized ? (
             /* Enhanced Initialization State */
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-4xl mx-auto"
-            >
+            <div className="flex items-center justify-center min-h-screen">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mb-8"
+                className="text-center max-w-4xl mx-auto"
               >
-                <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
-                  <Brain className="w-20 h-20 text-emerald-400" />
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-emerald-400/30"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  />
-                </div>
-                
-                <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
-                  SYNAPTIC FORGE
-                </h1>
-                <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
-                  The Adaptive Foresight Engine
-                </h2>
-                <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
-                  Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
-                  learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
-                </p>
-                
-                {systemStatus === 'initializing' && (
-                  <motion.div
-                    className="flex flex-col items-center gap-4"
-                  >
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mb-8"
+                >
+                  <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
+                    <Brain className="w-20 h-20 text-emerald-400" />
                     <motion.div
-                      className="flex items-center justify-center gap-4"
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 rounded-full border-2 border-emerald-400/30"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    />
+                  </div>
+                  
+                  <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
+                    SYNAPTIC FORGE
+                  </h1>
+                  <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
+                    The Adaptive Foresight Engine
+                  </h2>
+                  <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+                    Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
+                    learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
+                  </p>
+                  
+                  {systemStatus === 'initializing' && (
+                    <motion.div
+                      className="flex flex-col items-center gap-4"
                     >
-                      <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-                      <span className="text-emerald-400 font-medium font-space-grotesk">
-                        Initializing AI Neural Networks...
-                      </span>
+                      <motion.div
+                        className="flex items-center justify-center gap-4"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                        <span className="text-emerald-400 font-medium font-space-grotesk">
+                          Initializing AI Neural Networks...
+                        </span>
+                      </motion.div>
+                      
+                      {/* AI Insights Stream during initialization */}
+                      <div className="mt-6 max-w-md">
+                        <AIInsightStream insights={aiInsights} />
+                      </div>
                     </motion.div>
-                    
-                    {/* AI Insights Stream during initialization */}
-                    <div className="mt-6 max-w-md">
-                      <AIInsightStream insights={aiInsights} />
-                    </div>
-                  </motion.div>
-                )}
+                  )}
 
-                {systemStatus === 'error' && (
-                  <motion.button
-                    onClick={initializeSystem}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
-                  >
-                    <Zap className="w-8 h-8" />
-                    Retry AI Initialization
-                  </motion.button>
-                )}
+                  {systemStatus === 'error' && (
+                    <motion.button
+                      onClick={initializeSystem}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
+                    >
+                      <Zap className="w-8 h-8" />
+                      Retry AI Initialization
+                    </motion.button>
+                  )}
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
           ) : (
-            /* Enhanced Active State */
-            <div className="w-full max-w-7xl mx-auto">
+            /* Enhanced Active State - Now properly scrollable */
+            <div className="space-y-8">
               {/* Enhanced System Status Display */}
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-8"
+                className="text-center"
               >
                 <div className="inline-flex items-center gap-6 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
                   <div className="flex items-center gap-2">
@@ -331,7 +333,7 @@ function App() {
               </motion.div>
 
               {/* Real-time Analytics Dashboard */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <RealTimeAnalytics 
                     data={realTimeData}
@@ -349,7 +351,6 @@ function App() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-8"
                 >
                   <div className="flex items-center gap-3 mb-6">
                     <Sparkles className="w-6 h-6 text-emerald-400" />

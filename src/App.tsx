@@ -21,6 +21,11 @@ import { InteractionHistory } from './components/InteractionHistory';
 import { FavoriteInsights } from './components/FavoriteInsights';
 import { UserDataUpload } from './components/UserDataUpload';
 import { JudgeImpressionMode } from './components/JudgeImpressionMode';
+import { InsightManager } from './components/InsightManager';
+import { DataSourceManager } from './components/DataSourceManager';
+import { CollaborationHub } from './components/CollaborationHub';
+import { EnhancedNavigation } from './components/EnhancedNavigation';
+import { AccessibilityFeatures } from './components/AccessibilityFeatures';
 import { synapticForgeAI } from './services/synapticForgeAI';
 import { enhancedSynapticForgeAI } from './services/enhancedSynapticForgeAI';
 import { useAuth } from './hooks/useAuth';
@@ -30,7 +35,7 @@ import { useUserDataSources } from './hooks/useUserDataSources';
 import { useAnalytics } from './hooks/useAnalytics';
 import { useSettings } from './hooks/useSettings';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
-import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play } from 'lucide-react';
+import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play, Accessibility } from 'lucide-react';
 
 function App() {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -93,6 +98,12 @@ function App() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
 
+  // New modal states
+  const [insightManagerOpen, setInsightManagerOpen] = useState(false);
+  const [dataSourceManagerOpen, setDataSourceManagerOpen] = useState(false);
+  const [collaborationHubOpen, setCollaborationHubOpen] = useState(false);
+  const [accessibilityOpen, setAccessibilityOpen] = useState(false);
+
   // Check URL parameters for judge mode
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -151,6 +162,44 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [isInitialized, userProfile]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case 'n':
+            event.preventDefault();
+            setQueryForgeVisible(true);
+            break;
+          case 'u':
+            event.preventDefault();
+            setDataSourceManagerOpen(true);
+            break;
+          case 's':
+            event.preventDefault();
+            setCollaborationHubOpen(true);
+            break;
+          case ',':
+            event.preventDefault();
+            setSettingsOpen(true);
+            break;
+          case 'k':
+            event.preventDefault();
+            // Focus search if available
+            break;
+        }
+      }
+      
+      if (event.key === 'F1') {
+        event.preventDefault();
+        setAccessibilityOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Judge Mode Handler
   const handleJudgeModeComplete = () => {
@@ -431,6 +480,26 @@ function App() {
         🎬 Judge Demo Mode
       </motion.button>
 
+      {/* Accessibility Quick Access */}
+      <motion.button
+        onClick={() => setAccessibilityOpen(true)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 border border-white/20"
+        aria-label="Open accessibility settings"
+      >
+        <Accessibility className="w-5 h-5" />
+      </motion.button>
+
+      {/* Enhanced Navigation */}
+      <EnhancedNavigation
+        onOpenInsightManager={() => setInsightManagerOpen(true)}
+        onOpenDataSourceManager={() => setDataSourceManagerOpen(true)}
+        onOpenCollaborationHub={() => setCollaborationHubOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenQueryForge={() => setQueryForgeVisible(true)}
+      />
+
       {/* Cognitive Canvas - Full Screen Background */}
       <CognitiveCanvas 
         foresightConstruct={foresightConstruct}
@@ -470,6 +539,27 @@ function App() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
+      />
+
+      {/* New Modal Components */}
+      <InsightManager
+        isOpen={insightManagerOpen}
+        onClose={() => setInsightManagerOpen(false)}
+      />
+
+      <DataSourceManager
+        isOpen={dataSourceManagerOpen}
+        onClose={() => setDataSourceManagerOpen(false)}
+      />
+
+      <CollaborationHub
+        isOpen={collaborationHubOpen}
+        onClose={() => setCollaborationHubOpen(false)}
+      />
+
+      <AccessibilityFeatures
+        isOpen={accessibilityOpen}
+        onClose={() => setAccessibilityOpen(false)}
       />
 
       {/* Main Content - Now properly scrollable */}
@@ -683,7 +773,7 @@ function App() {
                           key={vector.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
+                          transition={{ delay: index * 0.1  }}
                           className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group"
                           whileHover={{ scale: 1.02 }}
                         >
@@ -744,7 +834,7 @@ function App() {
                       </h3>
                       <p className="text-gray-300 font-space-grotesk text-lg mb-6">
                         Your AI co-processor has analyzed global data streams and identified strategic vectors.
-                        Click the Brain icon to forge personalized insights.
+                        Use the navigation menu or click the Brain icon to forge personalized insights.
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
                         <div className="flex items-center gap-2">

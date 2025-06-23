@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SYNAPTIC FORGE: The Adaptive Foresight Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="SYNAPTIC FORGE - The Revolutionary AI Co-Processor for Strategic Decision-Making. Experience the future of AI-augmented strategic thinking.">
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- SVG Filters for Accessibility -->
+  <svg class="svg-filters">
+    <!-- Protanopia Filter -->
+    <filter id="protanopia-filter">
+      <feColorMatrix
+        in="SourceGraphic"
+        type="matrix"
+        values="0.567, 0.433, 0,     0, 0
+                0.558, 0.442, 0,     0, 0
+                0,     0.242, 0.758, 0, 0
+                0,     0,     0,     1, 0"/>
+    </filter>
+    
+    <!-- Deuteranopia Filter -->
+    <filter id="deuteranopia-filter">
+      <feColorMatrix
+        in="SourceGraphic"
+        type="matrix"
+        values="0.625, 0.375, 0,   0, 0
+                0.7,   0.3,   0,   0, 0
+                0,     0.3,   0.7, 0, 0
+                0,     0,     0,   1, 0"/>
+    </filter>
+    
+    <!-- Tritanopia Filter -->
+    <filter id="tritanopia-filter">
+      <feColorMatrix
+        in="SourceGraphic"
+        type="matrix"
+        values="0.95, 0.05,  0,     0, 0
+                0,    0.433, 0.567, 0, 0
+                0,    0.475, 0.525, 0, 0
+                0,    0,     0,     1, 0"/>
+    </filter>
+  </svg>
+  
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

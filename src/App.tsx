@@ -15,11 +15,29 @@ import { ExportInsightButton } from './components/ExportInsightButton';
 import { AIPersonalityAvatar } from './components/AIPersonalityAvatar';
 import { VoiceCommandInterface } from './components/VoiceCommandInterface';
 import { AdaptiveSoundscape } from './components/AdaptiveSoundscape';
+import { AuthModal } from './components/AuthModal';
+import { UserProfileCard } from './components/UserProfileCard';
+import { InteractionHistory } from './components/InteractionHistory';
+import { FavoriteInsights } from './components/FavoriteInsights';
+import { UserDataUpload } from './components/UserDataUpload';
 import { synapticForgeAI } from './services/synapticForgeAI';
+import { enhancedSynapticForgeAI } from './services/enhancedSynapticForgeAI';
+import { useAuth } from './hooks/useAuth';
+import { useUserProfile } from './hooks/useUserProfile';
+import { useInteractionHistory } from './hooks/useInteractionHistory';
+import { useUserDataSources } from './hooks/useUserDataSources';
+import { useAnalytics } from './hooks/useAnalytics';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
-import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp } from 'lucide-react';
+import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn } from 'lucide-react';
 
 function App() {
+  // Auth and user state
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile();
+  const { saveInteraction } = useInteractionHistory();
+  const { dataSources } = useUserDataSources();
+  const { trackEvent } = useAnalytics();
+
   // Core state
   const [userProfile, setUserProfile] = useState<UserProfile>({
     id: 'user-1',
@@ -32,7 +50,7 @@ function App() {
     },
     validatedInsightsHistory: [],
     preferredAnalysisModes: ['strategic_analysis', 'innovation_opportunities'],
-    aiPersonalityEvolutionStage: 7.8,
+    aiPersonalityEvolutionStage: profile?.ai_personality_stage || 7.8,
     cognitivePreferences: {
       preferredBrainwaveState: 'beta',
       voiceTone: 'authoritative',
@@ -59,12 +77,25 @@ function App() {
   const [systemStatus, setSystemStatus] = useState<'initializing' | 'ready' | 'processing' | 'error'>('initializing');
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [realTimeData, setRealTimeData] = useState<any[]>([]);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // New enhanced state
   const [workflowActive, setWorkflowActive] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
+
+  // Update user profile when Supabase profile changes
+  useEffect(() => {
+    if (profile) {
+      setUserProfile(prev => ({
+        ...prev,
+        aiPersonalityEvolutionStage: profile.ai_personality_stage,
+        learnedBiases: profile.learned_biases || prev.learnedBiases,
+        cognitivePreferences: profile.cognitive_preferences || prev.cognitivePreferences
+      }));
+    }
+  }, [profile]);
 
   // Initialize SYNAPTIC FORGE with enhanced AI capabilities
   const initializeSystem = async () => {
@@ -74,6 +105,14 @@ function App() {
     try {
       // Enhanced AI thinking process
       setAiInsights(['🧠 Initializing quantum neural pathways...', '📡 Establishing secure connection to global consciousness grid...']);
+      
+      if (user) {
+        setAiInsights(prev => [...prev, `👤 Welcome back, ${profile?.preferred_name || profile?.username || 'Strategic Analyst'}`]);
+        await trackEvent('system_initialization', { user_type: 'authenticated' });
+      } else {
+        setAiInsights(prev => [...prev, '🎭 Running in demo mode - sign in for personalized AI evolution']);
+        await trackEvent('system_initialization', { user_type: 'anonymous' });
+      }
       
       // Fetch and analyze Omni-Data
       const omniData = await synapticForgeAI.fetchOmniData();
@@ -85,7 +124,7 @@ function App() {
       
       setAiInsights(prev => [...prev, 
         `🎯 Identified ${vectors.length} high-probability strategic vectors`, 
-        '✨ AI personality matrix calibrated to your cognitive preferences',
+        user ? '✨ AI personality matrix calibrated to your personal evolution stage' : '✨ AI personality matrix initialized',
         '🔮 Autonomous agent workflows initialized',
         '📈 Real-time anomaly detection engine activated'
       ]);
@@ -129,12 +168,22 @@ function App() {
     setForesightVisible(false);
     setWorkflowActive(true);
     
+    // Track user interaction
+    if (user) {
+      await trackEvent('query_submitted', { 
+        query_type: queryContext.type, 
+        query_length: queryContext.query.length,
+        has_custom_data: dataSources.length > 0
+      });
+    }
+    
     // Show AI thinking process
-    setAiInsights(prev => [...prev, 
+    const thoughtStream = [
       `🤔 Analyzing complex query: "${queryContext.query}"`, 
       '🔍 Initiating autonomous agent workflow...',
       '🧠 Cross-referencing with global data patterns...'
-    ]);
+    ];
+    setAiInsights(prev => [...prev, ...thoughtStream]);
 
     try {
       // Find most relevant strategic vector
@@ -148,13 +197,34 @@ function App() {
           '📊 Creating adaptive data visualizations...'
         ]);
         
-        const construct = await synapticForgeAI.generateForesightConstruct(
+        // Use enhanced AI service that can incorporate user data
+        const { construct, thoughtStream: newThoughts } = await enhancedSynapticForgeAI.generateForesightConstructWithUserData(
           relevantVector,
           queryContext,
-          userProfile
+          profile || userProfile,
+          dataSources,
+          thoughtStream
         );
         
+        setAiInsights(prev => [...prev, ...newThoughts]);
         setForesightConstruct(construct);
+        
+        // Save interaction to database if user is logged in
+        if (user) {
+          try {
+            await saveInteraction({
+              query_text: queryContext.query,
+              query_type: queryContext.type,
+              strategic_vector: relevantVector,
+              foresight_construct: construct,
+              ai_thought_stream: newThoughts
+            });
+            
+            setAiInsights(prev => [...prev, '💾 Interaction saved to your personal knowledge base']);
+          } catch (error) {
+            console.error('Error saving interaction:', error);
+          }
+        }
         
         // Generate adaptive visualization
         const visualizationData = [
@@ -186,7 +256,7 @@ function App() {
           '✨ Foresight construct successfully generated', 
           '🎵 Cognitive audio optimization activated',
           '🎨 Dynamic visual metaphor rendered',
-          '📈 AI personality evolution stage advanced'
+          user ? '📈 AI personality evolution stage advanced' : '📈 AI analysis complete'
         ]);
       }
       
@@ -203,7 +273,7 @@ function App() {
 
   // Enhanced feedback with AI learning
   const handleFeedback = async (feedback: string) => {
-    if (foresightConstruct) {
+    if (foresightConstruct && user && profile) {
       try {
         setAiInsights(prev => [...prev, 
           `📝 Processing user feedback: ${feedback}`, 
@@ -211,25 +281,18 @@ function App() {
           '📊 Recalibrating strategic analysis algorithms...'
         ]);
         
+        // Track feedback
+        await trackEvent('feedback_provided', { 
+          feedback_type: feedback,
+          interaction_id: foresightConstruct.id
+        });
+        
         const updatedProfile = await synapticForgeAI.refineLearningProfile(
           userProfile,
           feedback,
           foresightConstruct
         );
         setUserProfile(updatedProfile);
-        
-        // Add to validation history
-        const validation = {
-          insightId: foresightConstruct.id,
-          rating: feedback === 'useful' ? 5 : feedback === 'needs_detail' ? 3 : 1,
-          feedback: feedback as any,
-          timestamp: new Date().toISOString()
-        };
-        
-        setUserProfile(prev => ({
-          ...prev,
-          validatedInsightsHistory: [...prev.validatedInsightsHistory, validation]
-        }));
         
         setAiInsights(prev => [...prev, 
           '✅ AI personality successfully evolved', 
@@ -294,8 +357,22 @@ function App() {
 
   // Initialize on mount
   useEffect(() => {
-    initializeSystem();
-  }, []);
+    if (!authLoading) {
+      initializeSystem();
+    }
+  }, [authLoading, user]);
+
+  // Show loading screen while auth is loading
+  if (authLoading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-emerald-400 font-medium">Initializing SYNAPTIC FORGE...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
@@ -334,6 +411,12 @@ function App() {
         onSettingsChange={handleSettingsChange}
       />
 
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+
       {/* Main Content - Now properly scrollable */}
       <div className="relative z-10 w-full">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
@@ -370,6 +453,18 @@ function App() {
                       Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
                       learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
                     </p>
+                    
+                    {!user && (
+                      <motion.button
+                        onClick={() => setAuthModalOpen(true)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-3 mx-auto mb-6"
+                      >
+                        <LogIn className="w-6 h-6" />
+                        Sign In for Personalized AI Evolution
+                      </motion.button>
+                    )}
                     
                     {systemStatus === 'initializing' && (
                       <motion.div
@@ -416,7 +511,7 @@ function App() {
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center"
+                  className="flex items-center justify-between"
                 >
                   <div className="inline-flex items-center gap-6 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
                     <div className="flex items-center gap-2">
@@ -441,7 +536,31 @@ function App() {
                       {emergentVectors.length} Strategic Vectors
                     </div>
                   </div>
+
+                  {/* User Profile or Sign In Button */}
+                  {user ? (
+                    <UserProfileCard />
+                  ) : (
+                    <motion.button
+                      onClick={() => setAuthModalOpen(true)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-2"
+                    >
+                      <LogIn className="w-5 h-5" />
+                      Sign In
+                    </motion.button>
+                  )}
                 </motion.div>
+
+                {/* User-specific sections (only show if authenticated) */}
+                {user && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <InteractionHistory />
+                    <FavoriteInsights />
+                    <UserDataUpload />
+                  </div>
+                )}
 
                 {/* AI Agent Workflow */}
                 <AIAgentWorkflow
@@ -587,7 +706,7 @@ function App() {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                          <span>Multi-sensory cognitive optimization</span>
+                          <span>{user ? 'Personalized AI evolution' : 'Multi-sensory cognitive optimization'}</span>
                         </div>
                       </div>
                     </div>

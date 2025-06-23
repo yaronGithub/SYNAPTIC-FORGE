@@ -19,7 +19,8 @@
     "three": "^0.160.0",
     "@react-three/fiber": "^8.15.0",
     "@react-three/drei": "^9.92.0",
-    "tone": "^14.7.77"
+    "tone": "^14.7.77",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

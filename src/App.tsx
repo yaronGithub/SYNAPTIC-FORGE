@@ -32,17 +32,11 @@ import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, Emergent
 import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play } from 'lucide-react';
 
 function App() {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
+  
   // Judge Impression Mode state
   const [judgeMode, setJudgeMode] = useState(false);
   
-  // Check URL parameters for judge mode
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('judge') === 'true' || urlParams.get('demo') === 'true') {
-      setJudgeMode(true);
-    }
-  }, []);
-
   // Auth and user state
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
@@ -97,20 +91,13 @@ function App() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
 
-  // Judge Mode Handler
-  const handleJudgeModeComplete = () => {
-    setJudgeMode(false);
-    // Remove judge mode from URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('judge');
-    url.searchParams.delete('demo');
-    window.history.replaceState({}, '', url.toString());
-  };
-
-  // Show Judge Impression Mode if activated
-  if (judgeMode) {
-    return <JudgeImpressionMode onComplete={handleJudgeModeComplete} />;
-  }
+  // Check URL parameters for judge mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('judge') === 'true' || urlParams.get('demo') === 'true') {
+      setJudgeMode(true);
+    }
+  }, []);
 
   // Update user profile when Supabase profile changes
   useEffect(() => {
@@ -123,6 +110,47 @@ function App() {
       }));
     }
   }, [profile]);
+
+  // Initialize on mount
+  useEffect(() => {
+    if (!authLoading) {
+      initializeSystem();
+    }
+  }, [authLoading, user]);
+
+  // Auto-refresh vectors with AI commentary
+  useEffect(() => {
+    if (isInitialized) {
+      const interval = setInterval(async () => {
+        try {
+          setAiInsights(prev => [...prev, '🔄 Scanning global consciousness for new strategic vectors...']);
+          const omniData = await synapticForgeAI.fetchOmniData();
+          const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
+          setEmergentVectors(vectors);
+          setRealTimeData(omniData.slice(0, 10));
+          setAiInsights(prev => [...prev, 
+            '📡 Global data streams refreshed', 
+            `🎯 ${vectors.length} strategic vectors currently active`,
+            '📊 Real-time analytics updated'
+          ]);
+        } catch (error) {
+          console.error('Error refreshing vectors:', error);
+        }
+      }, 3 * 60 * 1000); // 3 minutes
+
+      return () => clearInterval(interval);
+    }
+  }, [isInitialized, userProfile]);
+
+  // Judge Mode Handler
+  const handleJudgeModeComplete = () => {
+    setJudgeMode(false);
+    // Remove judge mode from URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('judge');
+    url.searchParams.delete('demo');
+    window.history.replaceState({}, '', url.toString());
+  };
 
   // Initialize SYNAPTIC FORGE with enhanced AI capabilities
   const initializeSystem = async () => {
@@ -358,36 +386,12 @@ function App() {
     }));
   };
 
-  // Auto-refresh vectors with AI commentary
-  useEffect(() => {
-    if (isInitialized) {
-      const interval = setInterval(async () => {
-        try {
-          setAiInsights(prev => [...prev, '🔄 Scanning global consciousness for new strategic vectors...']);
-          const omniData = await synapticForgeAI.fetchOmniData();
-          const vectors = await synapticForgeAI.analyzeEmergentVectors(omniData, userProfile);
-          setEmergentVectors(vectors);
-          setRealTimeData(omniData.slice(0, 10));
-          setAiInsights(prev => [...prev, 
-            '📡 Global data streams refreshed', 
-            `🎯 ${vectors.length} strategic vectors currently active`,
-            '📊 Real-time analytics updated'
-          ]);
-        } catch (error) {
-          console.error('Error refreshing vectors:', error);
-        }
-      }, 3 * 60 * 1000); // 3 minutes
-
-      return () => clearInterval(interval);
-    }
-  }, [isInitialized, userProfile]);
-
-  // Initialize on mount
-  useEffect(() => {
-    if (!authLoading) {
-      initializeSystem();
-    }
-  }, [authLoading, user]);
+  // NOW HANDLE CONDITIONAL RENDERING AFTER ALL HOOKS ARE CALLED
+  
+  // Show Judge Impression Mode if activated
+  if (judgeMode) {
+    return <JudgeImpressionMode onComplete={handleJudgeModeComplete} />;
+  }
 
   // Show loading screen while auth is loading
   if (authLoading || profileLoading) {

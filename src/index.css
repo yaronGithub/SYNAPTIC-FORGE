@@ -1,3 +1,94 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Light theme styles */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+}
+
+.light-theme body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Visual complexity data attributes */
+[data-visual-complexity="minimal"] .complex-animation {
+  animation: none !important;
+}
+
+[data-visual-complexity="minimal"] .particle-effect {
+  display: none !important;
+}
+
+[data-visual-complexity="complex"] .enhanced-animation {
+  animation-duration: calc(var(--motion-intensity, 7) * 0.1s);
+}
+
+/* Motion intensity CSS custom properties */
+:root {
+  --motion-intensity: 7;
+}
+
+.motion-responsive {
+  animation-duration: calc(var(--motion-intensity) * 0.1s);
+}
+
+/* Scrollbar styling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-600 {
+  scrollbar-color: #4b5563 transparent;
+}
+
+.scrollbar-track-transparent {
+  scrollbar-track-color: transparent;
+}
+
+/* Custom scrollbar for webkit browsers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Enhanced animations based on settings */
+@keyframes settings-aware-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(calc(1 + var(--motion-intensity) * 0.01));
+    opacity: 1;
+  }
+}
+
+.settings-aware-animation {
+  animation: settings-aware-pulse calc(var(--motion-intensity) * 0.3s) ease-in-out infinite;
+}

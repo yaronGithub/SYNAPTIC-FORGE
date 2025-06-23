@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CognitiveCanvas } from './components/CognitiveCanvas';
-import { AdaptiveAudioEngine } from './components/AdaptiveAudioEngine';
+import { SettingsAwareAudioEngine } from './components/SettingsAwareAudioEngine';
 import { QueryForge } from './components/QueryForge';
 import { ForesightDisplay } from './components/ForesightDisplay';
 import { AIInsightStream } from './components/AIInsightStream';
@@ -28,6 +28,7 @@ import { useUserProfile } from './hooks/useUserProfile';
 import { useInteractionHistory } from './hooks/useInteractionHistory';
 import { useUserDataSources } from './hooks/useUserDataSources';
 import { useAnalytics } from './hooks/useAnalytics';
+import { useSettings } from './hooks/useSettings';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
 import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play } from 'lucide-react';
 
@@ -43,6 +44,7 @@ function App() {
   const { saveInteraction } = useInteractionHistory();
   const { dataSources } = useUserDataSources();
   const { trackEvent } = useAnalytics();
+  const { settings, updateSettings } = useSettings();
 
   // Core state
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -58,9 +60,9 @@ function App() {
     preferredAnalysisModes: ['strategic_analysis', 'innovation_opportunities'],
     aiPersonalityEvolutionStage: profile?.ai_personality_stage || 7.8,
     cognitivePreferences: {
-      preferredBrainwaveState: 'beta',
-      voiceTone: 'authoritative',
-      visualComplexity: 'moderate'
+      preferredBrainwaveState: settings.preferredBrainwaveState,
+      voiceTone: settings.aiVoiceTone,
+      visualComplexity: settings.visualComplexity
     }
   });
 
@@ -76,7 +78,7 @@ function App() {
 
   // UI state
   const [isProcessing, setIsProcessing] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(settings.audioEnabled);
   const [queryForgeVisible, setQueryForgeVisible] = useState(false);
   const [foresightVisible, setForesightVisible] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -84,10 +86,10 @@ function App() {
   const [aiInsights, setAiInsights] = useState<string[]>([]);
   const [realTimeData, setRealTimeData] = useState<any[]>([]);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // New enhanced state
   const [workflowActive, setWorkflowActive] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
 
@@ -106,10 +108,18 @@ function App() {
         ...prev,
         aiPersonalityEvolutionStage: profile.ai_personality_stage,
         learnedBiases: profile.learned_biases || prev.learnedBiases,
-        cognitivePreferences: profile.cognitive_preferences || prev.cognitivePreferences
+        cognitivePreferences: {
+          ...prev.cognitivePreferences,
+          ...profile.cognitive_preferences
+        }
       }));
     }
   }, [profile]);
+
+  // Update audio enabled state when settings change
+  useEffect(() => {
+    setAudioEnabled(settings.audioEnabled);
+  }, [settings.audioEnabled]);
 
   // Initialize on mount
   useEffect(() => {
@@ -206,7 +216,7 @@ function App() {
     if (emergentVectors.length === 0) return;
     
     const autoQuery: QueryContext = {
-      type: 'strategic_analysis',
+      type: settings.defaultAnalysisType,
       query: 'What are the most critical strategic opportunities emerging from current global trends?',
       urgency: 'high',
       scope: 'strategic',
@@ -264,8 +274,8 @@ function App() {
         setAiInsights(prev => [...prev, ...newThoughts]);
         setForesightConstruct(construct);
         
-        // Save interaction to database if user is logged in
-        if (user) {
+        // Save interaction to database if user is logged in and auto-save is enabled
+        if (user && settings.autoSaveInteractions) {
           try {
             await saveInteraction({
               query_text: queryContext.query,
@@ -298,18 +308,18 @@ function App() {
         
         setForesightVisible(true);
         
-        // Update cognitive state based on construct
+        // Update cognitive state based on construct and settings
         setCognitiveState(prev => ({
           ...prev,
           currentBrainwaveTarget: `${construct.sensoryDirectives.targetBrainwaveFrequency.type.toUpperCase()} (${construct.sensoryDirectives.targetBrainwaveFrequency.range})`,
-          isOptimized: true,
-          focusLevel: Math.min(1, prev.focusLevel + 0.1),
-          clarityLevel: Math.min(1, prev.clarityLevel + 0.1)
+          isOptimized: settings.cognitiveOptimization,
+          focusLevel: Math.min(1, prev.focusLevel + (settings.cognitiveOptimization ? 0.15 : 0.1)),
+          clarityLevel: Math.min(1, prev.clarityLevel + (settings.cognitiveOptimization ? 0.15 : 0.1))
         }));
         
         setAiInsights(prev => [...prev, 
           '✨ Foresight construct successfully generated', 
-          '🎵 Cognitive audio optimization activated',
+          settings.audioEnabled ? '🎵 Cognitive audio optimization activated' : '🔇 Audio optimization disabled in settings',
           '🎨 Dynamic visual metaphor rendered',
           user ? '📈 AI personality evolution stage advanced' : '📈 AI analysis complete'
         ]);
@@ -368,20 +378,23 @@ function App() {
   };
 
   // Settings change handler
-  const handleSettingsChange = (settings: any) => {
+  const handleSettingsChange = (newSettings: any) => {
     setAiInsights(prev => [...prev, 
       '⚙️ User preferences updated', 
       '🎨 Interface adapting to new settings...',
       '🧠 AI personality adjusting to preferences'
     ]);
     
+    updateSettings(newSettings);
+    
     // Update user profile based on settings
     setUserProfile(prev => ({
       ...prev,
       cognitivePreferences: {
         ...prev.cognitivePreferences,
-        voiceTone: settings.aiVoiceTone,
-        visualComplexity: settings.visualComplexity
+        voiceTone: newSettings.aiVoiceTone,
+        visualComplexity: newSettings.visualComplexity,
+        preferredBrainwaveState: newSettings.preferredBrainwaveState
       }
     }));
   };
@@ -426,7 +439,7 @@ function App() {
       />
 
       {/* Enhanced Audio Systems */}
-      <AdaptiveAudioEngine
+      <SettingsAwareAudioEngine
         foresightConstruct={foresightConstruct}
         cognitiveState={cognitiveState}
         enabled={audioEnabled}
@@ -435,7 +448,7 @@ function App() {
       
       <AdaptiveSoundscape
         foresightConstruct={foresightConstruct}
-        enabled={audioEnabled}
+        enabled={audioEnabled && settings.audioEnabled}
         insightType={foresightConstruct ? 'opportunity' : 'neutral'}
       />
 
@@ -618,7 +631,7 @@ function App() {
 
                 {/* Anomaly Detection */}
                 <AnomalyDetectionAlert
-                  isActive={isInitialized}
+                  isActive={isInitialized && settings.proactiveAlerts}
                   onDismiss={(anomalyId) => {
                     setAiInsights(prev => [...prev, `🔕 Anomaly ${anomalyId} acknowledged and dismissed`]);
                   }}

@@ -20,6 +20,7 @@ import { UserProfileCard } from './components/UserProfileCard';
 import { InteractionHistory } from './components/InteractionHistory';
 import { FavoriteInsights } from './components/FavoriteInsights';
 import { UserDataUpload } from './components/UserDataUpload';
+import { JudgeImpressionMode } from './components/JudgeImpressionMode';
 import { synapticForgeAI } from './services/synapticForgeAI';
 import { enhancedSynapticForgeAI } from './services/enhancedSynapticForgeAI';
 import { useAuth } from './hooks/useAuth';
@@ -28,9 +29,20 @@ import { useInteractionHistory } from './hooks/useInteractionHistory';
 import { useUserDataSources } from './hooks/useUserDataSources';
 import { useAnalytics } from './hooks/useAnalytics';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
-import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn } from 'lucide-react';
+import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play } from 'lucide-react';
 
 function App() {
+  // Judge Impression Mode state
+  const [judgeMode, setJudgeMode] = useState(false);
+  
+  // Check URL parameters for judge mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('judge') === 'true' || urlParams.get('demo') === 'true') {
+      setJudgeMode(true);
+    }
+  }, []);
+
   // Auth and user state
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useUserProfile();
@@ -84,6 +96,21 @@ function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [generatedVisualization, setGeneratedVisualization] = useState<any>(null);
+
+  // Judge Mode Handler
+  const handleJudgeModeComplete = () => {
+    setJudgeMode(false);
+    // Remove judge mode from URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('judge');
+    url.searchParams.delete('demo');
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  // Show Judge Impression Mode if activated
+  if (judgeMode) {
+    return <JudgeImpressionMode onComplete={handleJudgeModeComplete} />;
+  }
 
   // Update user profile when Supabase profile changes
   useEffect(() => {
@@ -376,6 +403,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
+      {/* Judge Mode Quick Access Button */}
+      <motion.button
+        onClick={() => setJudgeMode(true)}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed top-6 left-1/2 transform -translate-x-1/2 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-2 border border-white/20"
+      >
+        <Play className="w-4 h-4" />
+        🎬 Judge Demo Mode
+      </motion.button>
+
       {/* Cognitive Canvas - Full Screen Background */}
       <CognitiveCanvas 
         foresightConstruct={foresightConstruct}

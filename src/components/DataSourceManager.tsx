@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Database, Plus, Edit3, Trash2, Upload, Download, RefreshCw, AlertCircle, CheckCircle, Globe, FileText, Link, Settings } from 'lucide-react';
+import { Database, Plus, Trash2, Upload, RefreshCw, CheckCircle, FileText, Link } from 'lucide-react';
 import { useUserDataSources } from '../hooks/useUserDataSources';
 import { useAnalytics } from '../hooks/useAnalytics';
 
@@ -9,21 +9,9 @@ interface DataSourceManagerProps {
   onClose: () => void;
 }
 
-interface DataSource {
-  id: string;
-  name: string;
-  type: 'file' | 'api' | 'database' | 'url';
-  status: 'connected' | 'disconnected' | 'error' | 'syncing';
-  lastSync?: string;
-  recordCount?: number;
-  config: Record<string, any>;
-}
-
 const DATA_SOURCE_TYPES = [
   { value: 'file', label: 'File Upload', icon: FileText, description: 'Upload CSV, JSON, or text files' },
-  { value: 'api', label: 'API Endpoint', icon: Globe, description: 'Connect to REST APIs' },
-  { value: 'url', label: 'Web URL', icon: Link, description: 'Scrape data from websites' },
-  { value: 'database', label: 'Database', icon: Database, description: 'Connect to external databases' }
+  { value: 'url', label: 'Web URL', icon: Link, description: 'Import data from websites' }
 ];
 
 export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
@@ -35,10 +23,7 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
   const [formData, setFormData] = useState({
     name: '',
     content: '',
-    url: '',
-    apiKey: '',
-    headers: '',
-    method: 'GET'
+    url: ''
   });
   const [uploading, setUploading] = useState(false);
 
@@ -55,30 +40,10 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
     setUploading(true);
     try {
       let content = formData.content;
-      let sourceConfig: Record<string, any> = { type: selectedType };
-
+      
       // Handle different data source types
-      switch (selectedType) {
-        case 'file':
-          content = formData.content;
-          break;
-        case 'api':
-          sourceConfig = {
-            ...sourceConfig,
-            url: formData.url,
-            method: formData.method,
-            headers: formData.headers ? JSON.parse(formData.headers) : {},
-            apiKey: formData.apiKey
-          };
-          content = `API Endpoint: ${formData.url}`;
-          break;
-        case 'url':
-          sourceConfig = { ...sourceConfig, url: formData.url };
-          content = `Web URL: ${formData.url}`;
-          break;
-        case 'database':
-          content = 'Database connection configured';
-          break;
+      if (selectedType === 'url') {
+        content = `Web URL: ${formData.url}`;
       }
 
       await addDataSource(formData.name.trim(), content, selectedType);
@@ -87,10 +52,7 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
       setFormData({
         name: '',
         content: '',
-        url: '',
-        apiKey: '',
-        headers: '',
-        method: 'GET'
+        url: ''
       });
       setShowAddForm(false);
       
@@ -129,30 +91,6 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'connected': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30';
-      case 'syncing': return 'text-blue-400 bg-blue-400/10 border-blue-400/30';
-      case 'error': return 'text-red-400 bg-red-400/10 border-red-400/30';
-      default: return 'text-gray-400 bg-gray-400/10 border-gray-400/30';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'connected': return <CheckCircle className="w-4 h-4" />;
-      case 'syncing': return <RefreshCw className="w-4 h-4 animate-spin" />;
-      case 'error': return <AlertCircle className="w-4 h-4" />;
-      default: return <Database className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    const typeConfig = DATA_SOURCE_TYPES.find(t => t.value === type);
-    const Icon = typeConfig?.icon || Database;
-    return <Icon className="w-4 h-4" />;
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -166,8 +104,8 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
                 <Database className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white font-space-grotesk">Data Source Manager</h2>
-                <p className="text-gray-400 text-sm">{dataSources.length} data sources configured</p>
+                <h2 className="text-2xl font-bold text-white font-space-grotesk">Data Sources</h2>
+                <p className="text-gray-400 text-sm">Connect your data for personalized analysis</p>
               </div>
             </div>
             
@@ -179,7 +117,7 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
                 className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium"
               >
                 <Plus className="w-4 h-4" />
-                Add Data Source
+                Add Data
               </motion.button>
               
               <button
@@ -204,7 +142,7 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
                   <h3 className="text-lg font-semibold text-white mb-4">Add New Data Source</h3>
                   
                   {/* Type Selection */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  <div className="grid grid-cols-2 gap-3 mb-6">
                     {DATA_SOURCE_TYPES.map((type) => {
                       const Icon = type.icon;
                       return (
@@ -270,51 +208,6 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
                       </>
                     )}
 
-                    {selectedType === 'api' && (
-                      <>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                              API URL
-                            </label>
-                            <input
-                              type="url"
-                              value={formData.url}
-                              onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                              placeholder="https://api.example.com/data"
-                              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white placeholder-gray-500 text-sm"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                              Method
-                            </label>
-                            <select
-                              value={formData.method}
-                              onChange={(e) => setFormData(prev => ({ ...prev, method: e.target.value }))}
-                              className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white text-sm"
-                            >
-                              <option value="GET">GET</option>
-                              <option value="POST">POST</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            API Key (Optional)
-                          </label>
-                          <input
-                            type="password"
-                            value={formData.apiKey}
-                            onChange={(e) => setFormData(prev => ({ ...prev, apiKey: e.target.value }))}
-                            placeholder="Your API key"
-                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white placeholder-gray-500 text-sm"
-                          />
-                        </div>
-                      </>
-                    )}
-
                     {selectedType === 'url' && (
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -372,7 +265,7 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
             ) : dataSources.length === 0 ? (
               <div className="text-center py-12">
                 <Database className="w-16 h-16 mx-auto mb-4 text-gray-500 opacity-50" />
-                <h3 className="text-xl font-semibold text-white mb-2">No data sources configured</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">No data sources yet</h3>
                 <p className="text-gray-400 mb-4">Add your first data source to enable personalized AI analysis</p>
                 <button
                   onClick={() => setShowAddForm(true)}
@@ -394,28 +287,23 @@ export function DataSourceManager({ isOpen, onClose }: DataSourceManagerProps) {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-cyan-600/20 rounded-lg">
-                          {getTypeIcon(source.data_type)}
+                          {source.data_type === 'file' ? <FileText className="w-4 h-4" /> : <Link className="w-4 h-4" />}
                         </div>
                         <div>
                           <h3 className="text-white font-medium">{source.name}</h3>
-                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border mt-1 ${getStatusColor('connected')}`}>
-                            {getStatusIcon('connected')}
+                          <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border bg-emerald-600/20 text-emerald-300 border-emerald-500/30 mt-1">
+                            <CheckCircle className="w-3 h-3" />
                             Connected
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-1">
-                        <button className="p-1 text-gray-400 hover:text-white transition-colors">
-                          <Settings className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleRemove(source.id, source.name)}
-                          className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleRemove(source.id, source.name)}
+                        className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
 
                     <p className="text-gray-300 text-sm mb-3 line-clamp-2">

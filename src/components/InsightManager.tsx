@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Star, StarOff, Plus, Edit3, Trash2, Download, Share, Tag, Calendar, Brain, Folder, Grid, List } from 'lucide-react';
+import { Search, Star, StarOff, Download, Brain, Grid, List } from 'lucide-react';
 import { useInteractionHistory } from '../hooks/useInteractionHistory';
 import { useFavorites } from '../hooks/useFavorites';
 import { useAnalytics } from '../hooks/useAnalytics';
@@ -16,7 +16,6 @@ interface InsightFilter {
   type: string;
   dateRange: string;
   favorites: boolean;
-  tags: string[];
 }
 
 export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
@@ -28,14 +27,11 @@ export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
     search: '',
     type: 'all',
     dateRange: 'all',
-    favorites: false,
-    tags: []
+    favorites: false
   });
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedInsights, setSelectedInsights] = useState<string[]>([]);
-  const [editingInsight, setEditingInsight] = useState<string | null>(null);
-  const [customTags, setCustomTags] = useState<{ [key: string]: string[] }>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -118,28 +114,6 @@ export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
     trackEvent('insight_exported', { insight_id: insight.id, format: 'json' });
   };
 
-  const handleBulkExport = () => {
-    const selectedData = interactions.filter(i => selectedInsights.includes(i.id));
-    const exportData = {
-      exported_at: new Date().toISOString(),
-      total_insights: selectedData.length,
-      insights: selectedData
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `synaptic-forge-insights-bulk-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    trackEvent('insights_bulk_exported', { count: selectedData.length });
-    setSelectedInsights([]);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -172,24 +146,12 @@ export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white font-space-grotesk">Insight Manager</h2>
+                <h2 className="text-2xl font-bold text-white font-space-grotesk">My Insights</h2>
                 <p className="text-gray-400 text-sm">{filteredInsights.length} of {interactions.length} insights</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              {selectedInsights.length > 0 && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  onClick={handleBulkExport}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
-                >
-                  <Download className="w-4 h-4" />
-                  Export Selected ({selectedInsights.length})
-                </motion.button>
-              )}
-              
               <div className="flex items-center gap-1 bg-white/5 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -293,23 +255,9 @@ export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
                     }`}
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedInsights.includes(insight.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedInsights(prev => [...prev, insight.id]);
-                            } else {
-                              setSelectedInsights(prev => prev.filter(id => id !== insight.id));
-                            }
-                          }}
-                          className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className={`px-2 py-1 rounded text-xs font-medium border ${getInsightTypeColor(insight.query_type)}`}>
-                          {insight.query_type.replace('_', ' ')}
-                        </span>
-                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-medium border ${getInsightTypeColor(insight.query_type)}`}>
+                        {insight.query_type.replace('_', ' ')}
+                      </span>
                       
                       <div className="flex items-center gap-1">
                         <button
@@ -339,17 +287,8 @@ export function InsightManager({ isOpen, onClose }: InsightManagerProps) {
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(insight.created_at)}
-                      </div>
-                      {insight.ai_thought_stream && (
-                        <div className="flex items-center gap-1">
-                          <Brain className="w-3 h-3" />
-                          {insight.ai_thought_stream.length} thoughts
-                        </div>
-                      )}
+                    <div className="text-xs text-gray-400">
+                      {formatDate(insight.created_at)}
                     </div>
                   </motion.div>
                 ))}

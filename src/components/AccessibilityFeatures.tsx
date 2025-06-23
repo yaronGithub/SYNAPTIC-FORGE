@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, Type, Contrast, Volume2, VolumeX, Keyboard, MousePointer, Accessibility } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Eye, Type, Contrast, Volume2, Keyboard, Accessibility } from 'lucide-react';
 
 interface AccessibilityFeaturesProps {
   isOpen: boolean;
@@ -13,7 +13,6 @@ interface AccessibilitySettings {
   reducedMotion: boolean;
   screenReaderMode: boolean;
   keyboardNavigation: boolean;
-  audioDescriptions: boolean;
   focusIndicators: boolean;
   colorBlindMode: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 }
@@ -25,7 +24,6 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
     reducedMotion: false,
     screenReaderMode: false,
     keyboardNavigation: true,
-    audioDescriptions: false,
     focusIndicators: true,
     colorBlindMode: 'none'
   });
@@ -103,11 +101,6 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
     setAnnouncement(`${key.replace(/([A-Z])/g, ' $1').toLowerCase()} ${value ? 'enabled' : 'disabled'}`);
   };
 
-  const announceToScreenReader = (message: string) => {
-    setAnnouncement(message);
-    setTimeout(() => setAnnouncement(''), 1000);
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -131,7 +124,7 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
                   <Accessibility className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white font-space-grotesk">Accessibility Settings</h2>
+                  <h2 className="text-2xl font-bold text-white font-space-grotesk">Accessibility</h2>
                   <p className="text-gray-400 text-sm">Customize the interface for your needs</p>
                 </div>
               </div>
@@ -157,7 +150,7 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                       <div>
-                        <label className="text-white font-medium">High Contrast Mode</label>
+                        <label className="text-white font-medium">High Contrast</label>
                         <p className="text-gray-400 text-sm">Increase contrast for better visibility</p>
                       </div>
                       <button
@@ -208,20 +201,6 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
                         }`} />
                       </button>
                     </div>
-
-                    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                      <label className="text-white font-medium mb-3 block">Color Blind Support</label>
-                      <select
-                        value={settings.colorBlindMode}
-                        onChange={(e) => updateSetting('colorBlindMode', e.target.value)}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm"
-                      >
-                        <option value="none">No color blind support</option>
-                        <option value="protanopia">Protanopia (Red-blind)</option>
-                        <option value="deuteranopia">Deuteranopia (Green-blind)</option>
-                        <option value="tritanopia">Tritanopia (Blue-blind)</option>
-                      </select>
-                    </div>
                   </div>
                 </section>
 
@@ -252,34 +231,7 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
 
                     <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                       <div>
-                        <label className="text-white font-medium">Keyboard Navigation</label>
-                        <p className="text-gray-400 text-sm">Enable full keyboard navigation support</p>
-                      </div>
-                      <button
-                        onClick={() => updateSetting('keyboardNavigation', !settings.keyboardNavigation)}
-                        aria-pressed={settings.keyboardNavigation}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${
-                          settings.keyboardNavigation ? 'bg-blue-600' : 'bg-gray-600'
-                        }`}
-                      >
-                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          settings.keyboardNavigation ? 'translate-x-7' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Screen Reader Settings */}
-                <section>
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Volume2 className="w-5 h-5" />
-                    Screen Reader Settings
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                      <div>
-                        <label className="text-white font-medium">Screen Reader Mode</label>
+                        <label className="text-white font-medium">Screen Reader Support</label>
                         <p className="text-gray-400 text-sm">Optimize interface for screen readers</p>
                       </div>
                       <button
@@ -294,58 +246,53 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
                         }`} />
                       </button>
                     </div>
-
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                      <div>
-                        <label className="text-white font-medium">Audio Descriptions</label>
-                        <p className="text-gray-400 text-sm">Provide audio descriptions for visual content</p>
-                      </div>
-                      <button
-                        onClick={() => updateSetting('audioDescriptions', !settings.audioDescriptions)}
-                        aria-pressed={settings.audioDescriptions}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${
-                          settings.audioDescriptions ? 'bg-blue-600' : 'bg-gray-600'
-                        }`}
-                      >
-                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          settings.audioDescriptions ? 'translate-x-7' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
                   </div>
                 </section>
 
-                {/* Keyboard Shortcuts Reference */}
+                {/* Color Blind Support */}
+                <section>
+                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <Contrast className="w-5 h-5" />
+                    Color Vision Settings
+                  </h3>
+                  <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                    <label className="text-white font-medium mb-3 block">Color Vision Support</label>
+                    <select
+                      value={settings.colorBlindMode}
+                      onChange={(e) => updateSetting('colorBlindMode', e.target.value)}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white text-sm"
+                    >
+                      <option value="none">Standard colors</option>
+                      <option value="protanopia">Protanopia (Red-blind)</option>
+                      <option value="deuteranopia">Deuteranopia (Green-blind)</option>
+                      <option value="tritanopia">Tritanopia (Blue-blind)</option>
+                    </select>
+                  </div>
+                </section>
+
+                {/* Keyboard Shortcuts */}
                 <section>
                   <h3 className="text-lg font-semibold text-white mb-4">Keyboard Shortcuts</h3>
                   <div className="bg-white/5 rounded-lg border border-white/10 p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-300">Open Query Forge</span>
+                          <span className="text-gray-300">New Analysis</span>
                           <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+N</kbd>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-300">Upload Data</span>
+                          <span className="text-gray-300">Add Data</span>
                           <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+U</kbd>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Share Insight</span>
-                          <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+S</kbd>
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-300">Open Settings</span>
+                          <span className="text-gray-300">Share Insight</span>
+                          <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+S</kbd>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Settings</span>
                           <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+,</kbd>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Search</span>
-                          <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">Ctrl+K</kbd>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Help</span>
-                          <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">F1</kbd>
                         </div>
                       </div>
                     </div>
@@ -356,31 +303,14 @@ export function AccessibilityFeatures({ isOpen, onClose }: AccessibilityFeatures
 
             {/* Footer */}
             <div className="p-6 border-t border-white/10">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-400">
-                  Settings are automatically saved and applied
-                </p>
+              <div className="flex justify-end">
                 <motion.button
-                  onClick={() => {
-                    const defaultSettings: AccessibilitySettings = {
-                      highContrast: false,
-                      largeText: false,
-                      reducedMotion: false,
-                      screenReaderMode: false,
-                      keyboardNavigation: true,
-                      audioDescriptions: false,
-                      focusIndicators: true,
-                      colorBlindMode: 'none'
-                    };
-                    setSettings(defaultSettings);
-                    applyAccessibilitySettings(defaultSettings);
-                    announceToScreenReader('Accessibility settings reset to defaults');
-                  }}
+                  onClick={onClose}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
-                  Reset to Defaults
+                  Close
                 </motion.button>
               </div>
             </div>

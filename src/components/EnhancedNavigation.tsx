@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Database, Users, Settings, Star, History, Upload, Share, BarChart3, Zap, Menu, X, Search, Bell, User } from 'lucide-react';
+import { Brain, Database, Users, Settings, Star, Menu, X, Search, Bell, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 
@@ -22,12 +22,11 @@ export function EnhancedNavigation({
   const { user } = useAuth();
   const { profile } = useUserProfile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const navigationItems = [
+  const mainNavigationItems = [
     {
       id: 'query-forge',
-      label: 'Query Forge',
+      label: 'New Analysis',
       icon: Brain,
       description: 'Generate strategic insights',
       onClick: onOpenQueryForge,
@@ -35,9 +34,9 @@ export function EnhancedNavigation({
     },
     {
       id: 'insights',
-      label: 'Insight Manager',
+      label: 'My Insights',
       icon: Star,
-      description: 'Manage saved insights',
+      description: 'View saved insights',
       onClick: onOpenInsightManager,
       color: 'from-blue-600 to-purple-600'
     },
@@ -51,48 +50,11 @@ export function EnhancedNavigation({
     },
     {
       id: 'collaboration',
-      label: 'Collaboration',
+      label: 'Share',
       icon: Users,
-      description: 'Share and collaborate',
+      description: 'Share with team',
       onClick: onOpenCollaborationHub,
       color: 'from-purple-600 to-pink-600'
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      description: 'View usage analytics',
-      onClick: () => console.log('Analytics'),
-      color: 'from-orange-600 to-red-600'
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: Settings,
-      description: 'Customize your experience',
-      onClick: onOpenSettings,
-      color: 'from-gray-600 to-gray-700'
-    }
-  ];
-
-  const quickActions = [
-    {
-      label: 'New Analysis',
-      icon: Zap,
-      onClick: onOpenQueryForge,
-      shortcut: 'Ctrl+N'
-    },
-    {
-      label: 'Upload Data',
-      icon: Upload,
-      onClick: onOpenDataSourceManager,
-      shortcut: 'Ctrl+U'
-    },
-    {
-      label: 'Share Insight',
-      icon: Share,
-      onClick: onOpenCollaborationHub,
-      shortcut: 'Ctrl+S'
     }
   ];
 
@@ -115,7 +77,7 @@ export function EnhancedNavigation({
           animate={{ opacity: 1, x: 0 }}
           className="bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl p-4 space-y-3"
         >
-          {navigationItems.map((item) => {
+          {mainNavigationItems.map((item) => {
             const Icon = item.icon;
             return (
               <motion.button
@@ -135,6 +97,22 @@ export function EnhancedNavigation({
               </motion.button>
             );
           })}
+          
+          {/* Settings button */}
+          <motion.button
+            onClick={onOpenSettings}
+            whileHover={{ scale: 1.05, x: 5 }}
+            whileTap={{ scale: 0.95 }}
+            className="group relative w-12 h-12 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200 flex items-center justify-center"
+          >
+            <Settings className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+            
+            {/* Tooltip */}
+            <div className="absolute left-full ml-3 px-3 py-2 bg-black/90 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              <div className="font-medium">Settings</div>
+              <div className="text-xs text-gray-400">Customize your experience</div>
+            </div>
+          </motion.button>
         </motion.div>
       </div>
 
@@ -183,81 +161,51 @@ export function EnhancedNavigation({
                   </button>
                 </div>
 
-                {/* Search */}
-                <div className="p-6 border-b border-white/10">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search features..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white placeholder-gray-500 text-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-sm font-medium text-gray-400 mb-3">Quick Actions</h3>
-                  <div className="space-y-2">
-                    {quickActions.map((action) => {
-                      const Icon = action.icon;
+                {/* Navigation Items */}
+                <div className="flex-1 p-6 overflow-auto">
+                  <div className="space-y-3">
+                    {mainNavigationItems.map((item) => {
+                      const Icon = item.icon;
                       return (
                         <motion.button
-                          key={action.label}
+                          key={item.id}
                           onClick={() => {
-                            action.onClick();
+                            item.onClick();
                             setIsMenuOpen(false);
                           }}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-left"
                         >
-                          <div className="flex items-center gap-3">
-                            <Icon className="w-4 h-4 text-gray-400" />
-                            <span className="text-white text-sm">{action.label}</span>
+                          <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg`}>
+                            <Icon className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-xs text-gray-500">{action.shortcut}</span>
+                          <div>
+                            <div className="text-white text-sm font-medium">{item.label}</div>
+                            <div className="text-gray-400 text-xs">{item.description}</div>
+                          </div>
                         </motion.button>
                       );
                     })}
-                  </div>
-                </div>
-
-                {/* Navigation Items */}
-                <div className="flex-1 p-6 overflow-auto">
-                  <h3 className="text-sm font-medium text-gray-400 mb-3">Navigation</h3>
-                  <div className="space-y-2">
-                    {navigationItems
-                      .filter(item => 
-                        searchQuery === '' || 
-                        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-                      )
-                      .map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <motion.button
-                            key={item.id}
-                            onClick={() => {
-                              item.onClick();
-                              setIsMenuOpen(false);
-                            }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-left"
-                          >
-                            <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg`}>
-                              <Icon className="w-4 h-4 text-white" />
-                            </div>
-                            <div>
-                              <div className="text-white text-sm font-medium">{item.label}</div>
-                              <div className="text-gray-400 text-xs">{item.description}</div>
-                            </div>
-                          </motion.button>
-                        );
-                      })}
+                    
+                    {/* Settings */}
+                    <motion.button
+                      onClick={() => {
+                        onOpenSettings();
+                        setIsMenuOpen(false);
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-left"
+                    >
+                      <div className="p-2 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg">
+                        <Settings className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">Settings</div>
+                        <div className="text-gray-400 text-xs">Customize your experience</div>
+                      </div>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -274,26 +222,6 @@ export function EnhancedNavigation({
           </>
         )}
       </AnimatePresence>
-
-      {/* Keyboard Shortcuts */}
-      <div className="hidden">
-        {/* Hidden elements for keyboard shortcuts */}
-        <button
-          onClick={onOpenQueryForge}
-          style={{ display: 'none' }}
-          data-shortcut="ctrl+n"
-        />
-        <button
-          onClick={onOpenDataSourceManager}
-          style={{ display: 'none' }}
-          data-shortcut="ctrl+u"
-        />
-        <button
-          onClick={onOpenCollaborationHub}
-          style={{ display: 'none' }}
-          data-shortcut="ctrl+s"
-        />
-      </div>
     </>
   );
 }

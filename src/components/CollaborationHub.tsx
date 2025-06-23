@@ -42,23 +42,7 @@ export function CollaborationHub({ isOpen, onClose }: CollaborationHubProps) {
   });
   const [shareLink, setShareLink] = useState('');
   const [newComment, setNewComment] = useState('');
-  const [sharedInsights] = useState<SharedInsight[]>([
-    {
-      id: 'shared-1',
-      insight: interactions[0],
-      sharedBy: 'John Doe',
-      sharedAt: new Date().toISOString(),
-      permissions: 'comment',
-      comments: [
-        {
-          id: 'comment-1',
-          author: 'Jane Smith',
-          content: 'This is a fascinating analysis! Have you considered the impact on emerging markets?',
-          timestamp: new Date(Date.now() - 3600000).toISOString()
-        }
-      ]
-    }
-  ]);
+  const [sharedInsights] = useState<SharedInsight[]>([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -141,15 +125,6 @@ ${insight.ai_thought_stream?.map(thought => `- ${thought}`).join('\n') || 'N/A'}
     trackEvent('insight_exported_for_sharing', { insight_id: insight.id, format });
   };
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-
-    // In a real app, this would save to the backend
-    console.log('Adding comment:', newComment);
-    setNewComment('');
-    trackEvent('comment_added', { content_length: newComment.length });
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -163,8 +138,8 @@ ${insight.ai_thought_stream?.map(thought => `- ${thought}`).join('\n') || 'N/A'}
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white font-space-grotesk">Collaboration Hub</h2>
-                <p className="text-gray-400 text-sm">Share insights and collaborate with your team</p>
+                <h2 className="text-2xl font-bold text-white font-space-grotesk">Share Insights</h2>
+                <p className="text-gray-400 text-sm">Share strategic insights with your team</p>
               </div>
             </div>
             
@@ -176,291 +151,155 @@ ${insight.ai_thought_stream?.map(thought => `- ${thought}`).join('\n') || 'N/A'}
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex border-b border-white/10">
-            {[
-              { id: 'share', label: 'Share Insights', icon: Share },
-              { id: 'shared', label: 'Shared with Me', icon: Eye },
-              { id: 'comments', label: 'Comments', icon: MessageCircle }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? 'text-white border-b-2 border-purple-500 bg-purple-500/10'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
           {/* Content */}
           <div className="flex-1 overflow-auto p-6">
-            {activeTab === 'share' && (
-              <div className="space-y-6">
-                <div className="bg-purple-600/10 rounded-xl p-6 border border-purple-500/20">
-                  <h3 className="text-lg font-semibold text-white mb-4">Share an Insight</h3>
-                  
-                  {/* Select Insight */}
-                  <div className="mb-4">
+            <div className="space-y-6">
+              <div className="bg-purple-600/10 rounded-xl p-6 border border-purple-500/20">
+                <h3 className="text-lg font-semibold text-white mb-4">Share an Insight</h3>
+                
+                {/* Select Insight */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Select Insight to Share
+                  </label>
+                  <select
+                    value={selectedInsight}
+                    onChange={(e) => setSelectedInsight(e.target.value)}
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white text-sm"
+                  >
+                    <option value="">Choose an insight...</option>
+                    {interactions.map((insight) => (
+                      <option key={insight.id} value={insight.id}>
+                        {insight.query_text.substring(0, 60)}...
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Share Settings */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Select Insight to Share
+                      Permissions
                     </label>
                     <select
-                      value={selectedInsight}
-                      onChange={(e) => setSelectedInsight(e.target.value)}
+                      value={shareSettings.permissions}
+                      onChange={(e) => setShareSettings(prev => ({ ...prev, permissions: e.target.value as any }))}
                       className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white text-sm"
                     >
-                      <option value="">Choose an insight...</option>
-                      {interactions.map((insight) => (
-                        <option key={insight.id} value={insight.id}>
-                          {insight.query_text.substring(0, 60)}...
-                        </option>
-                      ))}
+                      <option value="view">View Only</option>
+                      <option value="comment">View & Comment</option>
+                      <option value="edit">View, Comment & Edit</option>
                     </select>
                   </div>
-
-                  {/* Share Settings */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Permissions
-                      </label>
-                      <select
-                        value={shareSettings.permissions}
-                        onChange={(e) => setShareSettings(prev => ({ ...prev, permissions: e.target.value as any }))}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white text-sm"
-                      >
-                        <option value="view">View Only</option>
-                        <option value="comment">View & Comment</option>
-                        <option value="edit">View, Comment & Edit</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Link Expiry
-                      </label>
-                      <select
-                        value={shareSettings.expiry}
-                        onChange={(e) => setShareSettings(prev => ({ ...prev, expiry: e.target.value as any }))}
-                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white text-sm"
-                      >
-                        <option value="1day">1 Day</option>
-                        <option value="7days">7 Days</option>
-                        <option value="30days">30 Days</option>
-                        <option value="never">Never</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Additional Options */}
-                  <div className="space-y-3 mb-6">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={shareSettings.requireAuth}
-                        onChange={(e) => setShareSettings(prev => ({ ...prev, requireAuth: e.target.checked }))}
-                        className="rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="text-sm text-gray-300">Require authentication to view</span>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Link Expiry
                     </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={shareSettings.allowDownload}
-                        onChange={(e) => setShareSettings(prev => ({ ...prev, allowDownload: e.target.checked }))}
-                        className="rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
-                      />
-                      <span className="text-sm text-gray-300">Allow downloads</span>
-                    </label>
-                  </div>
-
-                  {/* Generate Share Link */}
-                  <div className="flex gap-3">
-                    <motion.button
-                      onClick={handleShareInsight}
-                      disabled={!selectedInsight}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
+                    <select
+                      value={shareSettings.expiry}
+                      onChange={(e) => setShareSettings(prev => ({ ...prev, expiry: e.target.value as any }))}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white text-sm"
                     >
-                      <Link className="w-4 h-4" />
-                      Generate Share Link
-                    </motion.button>
+                      <option value="1day">1 Day</option>
+                      <option value="7days">7 Days</option>
+                      <option value="30days">30 Days</option>
+                      <option value="never">Never</option>
+                    </select>
                   </div>
-
-                  {/* Share Link Result */}
-                  {shareLink && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 p-4 bg-emerald-600/10 rounded-lg border border-emerald-500/20"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Link className="w-4 h-4 text-emerald-400" />
-                        <span className="text-emerald-300 font-medium">Share Link Generated</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={shareLink}
-                          readOnly
-                          className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded text-white text-sm"
-                        />
-                        <button
-                          onClick={handleCopyLink}
-                          className="px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
 
-                {/* Export Options */}
-                {selectedInsight && (
-                  <div className="bg-blue-600/10 rounded-xl p-6 border border-blue-500/20">
-                    <h3 className="text-lg font-semibold text-white mb-4">Export for Sharing</h3>
-                    <div className="flex gap-3">
-                      {[
-                        { format: 'json', label: 'JSON', icon: Download },
-                        { format: 'markdown', label: 'Markdown', icon: Download }
-                      ].map(({ format, label, icon: Icon }) => (
-                        <button
-                          key={format}
-                          onClick={() => {
-                            const insight = interactions.find(i => i.id === selectedInsight);
-                            if (insight) handleExportForSharing(insight, format as any);
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                        >
-                          <Icon className="w-4 h-4" />
-                          Export as {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'shared' && (
-              <div className="space-y-4">
-                {sharedInsights.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Eye className="w-16 h-16 mx-auto mb-4 text-gray-500 opacity-50" />
-                    <h3 className="text-xl font-semibold text-white mb-2">No shared insights</h3>
-                    <p className="text-gray-400">Insights shared with you will appear here</p>
-                  </div>
-                ) : (
-                  sharedInsights.map((shared) => (
-                    <motion.div
-                      key={shared.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white/5 rounded-lg border border-white/10 p-6"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-white font-medium mb-1">
-                            {shared.insight?.query_text || 'Shared Insight'}
-                          </h3>
-                          <p className="text-gray-400 text-sm">
-                            Shared by {shared.sharedBy} • {new Date(shared.sharedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            shared.permissions === 'edit' ? 'bg-emerald-600/20 text-emerald-300' :
-                            shared.permissions === 'comment' ? 'bg-blue-600/20 text-blue-300' :
-                            'bg-gray-600/20 text-gray-300'
-                          }`}>
-                            {shared.permissions}
-                          </span>
-                        </div>
-                      </div>
-
-                      {shared.insight?.foresight_construct && (
-                        <p className="text-gray-300 text-sm mb-4">
-                          {(shared.insight.foresight_construct as any).conciseActionableRecommendation}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <MessageCircle className="w-4 h-4" />
-                        {shared.comments.length} comments
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {activeTab === 'comments' && (
-              <div className="space-y-6">
-                {/* Add Comment */}
-                <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-700/50">
-                  <h3 className="text-lg font-semibold text-white mb-4">Add Comment</h3>
-                  <div className="space-y-3">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Share your thoughts on this insight..."
-                      rows={3}
-                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-500 text-sm resize-none"
+                {/* Additional Options */}
+                <div className="space-y-3 mb-6">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={shareSettings.requireAuth}
+                      onChange={(e) => setShareSettings(prev => ({ ...prev, requireAuth: e.target.checked }))}
+                      className="rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
                     />
-                    <div className="flex justify-end">
-                      <motion.button
-                        onClick={handleAddComment}
-                        disabled={!newComment.trim()}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Add Comment
-                      </motion.button>
-                    </div>
-                  </div>
+                    <span className="text-sm text-gray-300">Require authentication to view</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={shareSettings.allowDownload}
+                      onChange={(e) => setShareSettings(prev => ({ ...prev, allowDownload: e.target.checked }))}
+                      className="rounded border-gray-600 bg-gray-700 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-300">Allow downloads</span>
+                  </label>
                 </div>
 
-                {/* Comments List */}
-                <div className="space-y-4">
-                  {sharedInsights.flatMap(shared => shared.comments).map((comment) => (
-                    <motion.div
-                      key={comment.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white/5 rounded-lg border border-white/10 p-4"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                            {comment.author.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="text-white font-medium text-sm">{comment.author}</div>
-                            <div className="text-gray-400 text-xs">
-                              {new Date(comment.timestamp).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 text-sm">{comment.content}</p>
-                    </motion.div>
-                  ))}
+                {/* Generate Share Link */}
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={handleShareInsight}
+                    disabled={!selectedInsight}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50"
+                  >
+                    <Link className="w-4 h-4" />
+                    Generate Share Link
+                  </motion.button>
                 </div>
+
+                {/* Share Link Result */}
+                {shareLink && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 bg-emerald-600/10 rounded-lg border border-emerald-500/20"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Link className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-300 font-medium">Share Link Generated</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={shareLink}
+                        readOnly
+                        className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded text-white text-sm"
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className="px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
-            )}
+
+              {/* Export Options */}
+              {selectedInsight && (
+                <div className="bg-blue-600/10 rounded-xl p-6 border border-blue-500/20">
+                  <h3 className="text-lg font-semibold text-white mb-4">Export for Sharing</h3>
+                  <div className="flex gap-3">
+                    {[
+                      { format: 'json', label: 'JSON', icon: Download },
+                      { format: 'markdown', label: 'Markdown', icon: Download }
+                    ].map(({ format, label, icon: Icon }) => (
+                      <button
+                        key={format}
+                        onClick={() => {
+                          const insight = interactions.find(i => i.id === selectedInsight);
+                          if (insight) handleExportForSharing(insight, format as any);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        <Icon className="w-4 h-4" />
+                        Export as {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

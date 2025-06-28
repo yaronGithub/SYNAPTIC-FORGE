@@ -70,7 +70,7 @@ export function QueryForge({ onQuerySubmit, isProcessing, isVisible, onToggle }:
 
   return (
     <>
-      {/* Toggle Button */}
+      {/* Toggle Button - Positioned in bottom-right, above accessibility button */}
       <AnimatePresence>
         {!isVisible && (
           <motion.button
@@ -79,7 +79,7 @@ export function QueryForge({ onQuerySubmit, isProcessing, isVisible, onToggle }:
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={onToggle}
             disabled={isProcessing}
-            className="fixed bottom-8 right-8 z-40 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm border border-white/20"
+            className="fixed bottom-20 right-6 z-40 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm border border-white/20"
           >
             <Brain className="w-6 h-6" />
           </motion.button>

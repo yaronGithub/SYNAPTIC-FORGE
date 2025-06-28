@@ -442,12 +442,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
-      {/* Accessibility Quick Access */}
+      {/* Accessibility Quick Access - Moved to bottom-left */}
       <motion.button
         onClick={() => setAccessibilityOpen(true)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 border border-white/20"
+        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 border border-white/20"
         aria-label="Open accessibility settings"
       >
         <Accessibility className="w-5 h-5" />
@@ -825,7 +825,7 @@ function App() {
         </div>
       </div>
 
-      {/* Query Forge Interface */}
+      {/* Query Forge Interface - Brain Button positioned in bottom-right */}
       <QueryForge
         onQuerySubmit={handleQuerySubmit}
         isProcessing={isProcessing}

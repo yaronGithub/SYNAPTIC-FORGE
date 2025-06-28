@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, Brain } from 'lucide-react';
+import { Mic, MicOff, Volume2, Brain, AlertCircle, Settings } from 'lucide-react';
 
 interface VoiceCommandInterfaceProps {
   onCommand: (command: string) => void;
@@ -13,6 +13,8 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
   const [transcript, setTranscript] = useState('');
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [isSupported, setIsSupported] = useState(false);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
   useEffect(() => {
     // Check if speech recognition is supported
@@ -20,6 +22,8 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
     
     if (SpeechRecognition) {
       setIsSupported(true);
+      checkMicrophonePermission();
+      
       const recognitionInstance = new SpeechRecognition();
       
       recognitionInstance.continuous = false;
@@ -29,6 +33,7 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
       recognitionInstance.onstart = () => {
         setIsListening(true);
         setTranscript('');
+        setPermissionError(null);
       };
 
       recognitionInstance.onresult = (event) => {
@@ -58,11 +63,59 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
       recognitionInstance.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
+        
+        switch (event.error) {
+          case 'not-allowed':
+            setPermissionError('Microphone access denied. Please allow microphone access in your browser settings.');
+            setHasPermission(false);
+            break;
+          case 'no-speech':
+            setPermissionError('No speech detected. Please try again.');
+            break;
+          case 'audio-capture':
+            setPermissionError('No microphone found. Please check your audio devices.');
+            break;
+          case 'network':
+            setPermissionError('Network error occurred. Please check your connection.');
+            break;
+          default:
+            setPermissionError(`Speech recognition error: ${event.error}`);
+        }
       };
 
       setRecognition(recognitionInstance);
     }
   }, []);
+
+  const checkMicrophonePermission = async () => {
+    try {
+      if (navigator.permissions) {
+        const permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        setHasPermission(permission.state === 'granted');
+        
+        permission.onchange = () => {
+          setHasPermission(permission.state === 'granted');
+          if (permission.state === 'granted') {
+            setPermissionError(null);
+          }
+        };
+      }
+    } catch (error) {
+      console.log('Permission API not supported');
+    }
+  };
+
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
+      setPermissionError(null);
+    } catch (error) {
+      setHasPermission(false);
+      setPermissionError('Microphone access denied. Please allow microphone access in your browser settings.');
+    }
+  };
 
   const processCommand = (command: string) => {
     // Process voice commands
@@ -89,9 +142,19 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
     }
   };
 
-  const startListening = () => {
+  const startListening = async () => {
+    if (!hasPermission) {
+      await requestMicrophonePermission();
+      return;
+    }
+    
     if (recognition && isEnabled) {
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('Failed to start recognition:', error);
+        setPermissionError('Failed to start voice recognition. Please try again.');
+      }
     }
   };
 
@@ -101,6 +164,10 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
     }
   };
 
+  const openBrowserSettings = () => {
+    speak('Please check your browser settings to allow microphone access for this site');
+  };
+
   if (!isSupported) {
     return null; // Don't render if not supported
   }
@@ -108,6 +175,38 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
   return (
     <div className="fixed bottom-6 left-6 z-40">
       <AnimatePresence>
+        {/* Permission Error Display */}
+        {permissionError && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="mb-4 bg-gradient-to-r from-red-600/20 to-orange-600/20 backdrop-blur-xl rounded-lg p-4 border border-red-500/30 max-w-sm"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="w-4 h-4 text-red-400" />
+              <span className="text-red-300 text-sm font-medium">Permission Required</span>
+            </div>
+            <p className="text-white text-sm mb-3">{permissionError}</p>
+            <div className="flex gap-2">
+              <button
+                onClick={requestMicrophonePermission}
+                className="px-3 py-1 bg-red-600/80 hover:bg-red-700/80 text-white text-xs rounded-md transition-colors"
+              >
+                Grant Access
+              </button>
+              <button
+                onClick={openBrowserSettings}
+                className="px-3 py-1 bg-gray-600/80 hover:bg-gray-700/80 text-white text-xs rounded-md transition-colors flex items-center gap-1"
+              >
+                <Settings className="w-3 h-3" />
+                Settings
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Listening Display */}
         {isListening && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -159,16 +258,24 @@ export function VoiceCommandInterface({ onCommand, isEnabled, onToggle }: VoiceC
             className={`p-4 rounded-full backdrop-blur-xl border transition-all ${
               isListening
                 ? 'bg-gradient-to-r from-red-600/80 to-orange-600/80 text-white border-red-400/30 shadow-lg animate-pulse'
+                : hasPermission === false
+                ? 'bg-gradient-to-r from-red-600/80 to-orange-600/80 text-white border-red-400/30 shadow-lg'
                 : 'bg-gradient-to-r from-purple-600/80 to-blue-600/80 text-white border-white/20 shadow-lg hover:from-purple-700/80 hover:to-blue-700/80'
             }`}
           >
-            {isListening ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            {isListening ? (
+              <MicOff className="w-6 h-6" />
+            ) : hasPermission === false ? (
+              <AlertCircle className="w-6 h-6" />
+            ) : (
+              <Mic className="w-6 h-6" />
+            )}
           </motion.button>
         )}
       </div>
 
       {/* Command Hints */}
-      {isEnabled && !isListening && (
+      {isEnabled && !isListening && !permissionError && hasPermission !== false && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

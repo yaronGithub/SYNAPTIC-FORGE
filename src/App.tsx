@@ -34,7 +34,7 @@ import { useUserDataSources } from './hooks/useUserDataSources';
 import { useAnalytics } from './hooks/useAnalytics';
 import { useSettings } from './hooks/useSettings';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
-import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Accessibility } from 'lucide-react';
+import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Accessibility, Cpu, Layers, Orbit } from 'lucide-react';
 
 function App() {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
@@ -431,26 +431,120 @@ function App() {
   // Show loading screen while auth is loading
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-emerald-400 font-medium">Initializing SYNAPTIC FORGE...</p>
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-purple-500/10 animate-pulse" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+        </div>
+        
+        <div className="text-center relative z-10">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="mb-8"
+          >
+            <div className="relative">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 border-4 border-emerald-400/30 border-t-emerald-400 rounded-full mx-auto mb-6"
+              />
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-4 border-2 border-cyan-400/30 border-b-cyan-400 rounded-full"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Brain className="w-12 h-12 text-emerald-400" />
+              </div>
+            </div>
+          </motion.div>
+          
+          <motion.h1
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-4xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent"
+          >
+            SYNAPTIC FORGE
+          </motion.h1>
+          
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
+            className="text-emerald-400 font-medium text-lg"
+          >
+            Initializing Quantum Neural Networks...
+          </motion.p>
+          
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="mt-8 flex justify-center space-x-2"
+          >
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                className="w-3 h-3 bg-emerald-400 rounded-full"
+              />
+            ))}
+          </motion.div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
-      {/* Accessibility Quick Access - Moved to bottom-left */}
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-x-hidden">
+      {/* Enhanced Animated Background */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-cyan-500/5 to-purple-500/5" />
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
+        </div>
+        
+        {/* Floating Particles */}
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-emerald-400/30 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Accessibility Quick Access - Enhanced Design */}
       <motion.button
         onClick={() => setAccessibilityOpen(true)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-full shadow-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 border border-white/20"
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 left-6 z-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-4 rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 border border-white/20 backdrop-blur-xl"
         aria-label="Open accessibility settings"
       >
-        <Accessibility className="w-5 h-5" />
+        <Accessibility className="w-6 h-6" />
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
       </motion.button>
 
       {/* Enhanced Navigation */}
@@ -462,7 +556,7 @@ function App() {
         onOpenQueryForge={() => setQueryForgeVisible(true)}
       />
 
-      {/* Cognitive Canvas - Full Screen Background */}
+      {/* Cognitive Canvas - Enhanced with Particles */}
       <CognitiveCanvas 
         foresightConstruct={foresightConstruct}
         isProcessing={isProcessing}
@@ -503,7 +597,7 @@ function App() {
         onClose={() => setAuthModalOpen(false)}
       />
 
-      {/* New Modal Components */}
+      {/* Enhanced Modal Components */}
       <InsightManager
         isOpen={insightManagerOpen}
         onClose={() => setInsightManagerOpen(false)}
@@ -524,72 +618,171 @@ function App() {
         onClose={() => setAccessibilityOpen(false)}
       />
 
-      {/* Main Content - Now properly scrollable */}
+      {/* Main Content - Enhanced with Glass Morphism */}
       <div className="relative z-10 w-full">
         <div className="container mx-auto px-6 py-8 max-w-7xl">
           {!isInitialized ? (
             <>
-              {/* Enhanced Initialization State */}
+              {/* Spectacular Initialization State */}
               <div className="flex items-center justify-center min-h-screen">
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center max-w-4xl mx-auto"
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="text-center max-w-6xl mx-auto"
                 >
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="mb-8"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, duration: 1 }}
+                    className="mb-12"
                   >
-                    <div className="w-40 h-40 mx-auto mb-8 bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-emerald-500/30 relative">
-                      <AIPersonalityAvatar
-                        evolutionStage={userProfile.aiPersonalityEvolutionStage}
-                        isProcessing={true}
-                        learningRate={0.85}
+                    <div className="relative w-64 h-64 mx-auto mb-12">
+                      {/* Multi-layered Rotating Rings */}
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full"
                       />
+                      <motion.div
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-8 border-2 border-cyan-500/30 border-r-cyan-500 rounded-full"
+                      />
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-16 border-2 border-purple-500/30 border-b-purple-500 rounded-full"
+                      />
+                      
+                      {/* Central AI Avatar */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <motion.div
+                          animate={{ 
+                            scale: [1, 1.1, 1],
+                            boxShadow: [
+                              '0 0 20px rgba(16, 185, 129, 0.5)',
+                              '0 0 40px rgba(16, 185, 129, 0.8)',
+                              '0 0 20px rgba(16, 185, 129, 0.5)'
+                            ]
+                          }}
+                          transition={{ duration: 3, repeat: Infinity }}
+                          className="w-24 h-24 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full flex items-center justify-center backdrop-blur-xl border border-white/20"
+                        >
+                          <Brain className="w-12 h-12 text-white" />
+                        </motion.div>
+                      </div>
+
+                      {/* Orbiting Elements */}
+                      {[0, 1, 2, 3].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-4 h-4 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full"
+                          style={{
+                            top: '50%',
+                            left: '50%',
+                            transformOrigin: '0 0',
+                          }}
+                          animate={{
+                            rotate: 360,
+                            x: Math.cos(i * Math.PI / 2) * 100,
+                            y: Math.sin(i * Math.PI / 2) * 100,
+                          }}
+                          transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 0.5,
+                          }}
+                        />
+                      ))}
                     </div>
                     
-                    <h1 className="text-6xl font-bold mb-4 font-space-grotesk bg-gradient-to-r from-white via-emerald-200 to-cyan-200 bg-clip-text text-transparent">
-                      SYNAPTIC FORGE
-                    </h1>
-                    <h2 className="text-2xl font-light mb-6 text-emerald-300 font-space-grotesk">
+                    <motion.h1
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8, duration: 1 }}
+                      className="text-8xl font-bold mb-6 font-space-grotesk"
+                    >
+                      <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                        SYNAPTIC
+                      </span>
+                      <br />
+                      <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-emerald-400 bg-clip-text text-transparent">
+                        FORGE
+                      </span>
+                    </motion.h1>
+                    
+                    <motion.h2
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.2, duration: 0.8 }}
+                      className="text-3xl font-light mb-8 text-emerald-300 font-space-grotesk"
+                    >
                       The Adaptive Foresight Engine
-                    </h2>
-                    <p className="text-xl text-gray-300 mb-8 leading-relaxed max-w-3xl mx-auto">
+                    </motion.h2>
+                    
+                    <motion.p
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.6, duration: 0.8 }}
+                      className="text-xl text-gray-300 mb-12 leading-relaxed max-w-4xl mx-auto"
+                    >
                       Experience the future of AI-augmented strategic thinking. This revolutionary co-processor 
                       learns your decision patterns and provides prescriptive foresight optimized for your cognitive state.
-                    </p>
+                    </motion.p>
                     
                     {!user && (
                       <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 2, duration: 0.8 }}
                         onClick={() => setAuthModalOpen(true)}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(16, 185, 129, 0.3)' }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-3 mx-auto mb-6"
+                        className="bg-gradient-to-r from-emerald-600 via-cyan-600 to-purple-600 text-white px-12 py-6 rounded-2xl font-semibold text-xl hover:from-emerald-700 hover:to-purple-700 transition-all duration-300 shadow-2xl font-space-grotesk flex items-center gap-4 mx-auto mb-8 border border-white/20 backdrop-blur-xl"
                       >
-                        <LogIn className="w-6 h-6" />
+                        <LogIn className="w-8 h-8" />
                         Sign In for Personalized AI Evolution
                       </motion.button>
                     )}
                     
                     {systemStatus === 'initializing' && (
                       <motion.div
-                        className="flex flex-col items-center gap-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 2.5 }}
+                        className="flex flex-col items-center gap-6"
                       >
                         <motion.div
-                          className="flex items-center justify-center gap-4"
+                          className="flex items-center justify-center gap-6"
                           animate={{ opacity: [0.5, 1, 0.5] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <div className="w-8 h-8 border-2 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
-                          <span className="text-emerald-400 font-medium font-space-grotesk">
+                          <div className="flex space-x-2">
+                            {[0, 1, 2, 3, 4].map((i) => (
+                              <motion.div
+                                key={i}
+                                className="w-3 h-3 bg-emerald-400 rounded-full"
+                                animate={{
+                                  scale: [1, 1.5, 1],
+                                  opacity: [0.5, 1, 0.5],
+                                }}
+                                transition={{
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  delay: i * 0.2,
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-emerald-400 font-medium font-space-grotesk text-lg">
                             Initializing Quantum Neural Networks...
                           </span>
                         </motion.div>
                         
                         {/* AI Insights Stream during initialization */}
-                        <div className="mt-6 max-w-md">
+                        <div className="mt-8 max-w-md">
                           <AIInsightStream insights={aiInsights} />
                         </div>
                       </motion.div>
@@ -600,9 +793,9 @@ function App() {
                         onClick={initializeSystem}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-12 py-6 rounded-xl font-semibold text-xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-4 mx-auto"
+                        className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-16 py-8 rounded-2xl font-semibold text-2xl hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-2xl font-space-grotesk flex items-center gap-6 mx-auto border border-white/20 backdrop-blur-xl"
                       >
-                        <Zap className="w-8 h-8" />
+                        <Zap className="w-10 h-10" />
                         Retry AI Initialization
                       </motion.button>
                     )}
@@ -612,64 +805,97 @@ function App() {
             </>
           ) : (
             <>
-              {/* Enhanced Active State - Now properly scrollable */}
+              {/* Enhanced Active State */}
               <div className="space-y-8">
-                {/* Enhanced System Status Display */}
+                {/* Spectacular System Status Display */}
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex items-center justify-between"
                 >
-                  <div className="inline-flex items-center gap-6 bg-black/40 backdrop-blur-xl rounded-2xl px-8 py-4 border border-emerald-500/30">
-                    <div className="flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-emerald-400" />
-                      <span className="text-emerald-400 font-medium">SYNAPTIC FORGE</span>
+                  <div className="inline-flex items-center gap-8 bg-black/20 backdrop-blur-2xl rounded-3xl px-10 py-6 border border-emerald-500/30 shadow-2xl">
+                    <div className="flex items-center gap-3">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        className="p-3 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-2xl"
+                      >
+                        <Activity className="w-6 h-6 text-white" />
+                      </motion.div>
+                      <div>
+                        <span className="text-emerald-400 font-bold text-xl font-space-grotesk">SYNAPTIC FORGE</span>
+                        <div className="text-xs text-gray-400">Quantum Neural Engine</div>
+                      </div>
                     </div>
-                    <div className="w-px h-6 bg-white/20" />
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        systemStatus === 'ready' ? 'bg-emerald-400' :
-                        systemStatus === 'processing' ? 'bg-amber-400 animate-pulse' :
-                        'bg-red-400'
-                      }`} />
-                      <span className="text-white text-sm capitalize">{systemStatus}</span>
+                    <div className="w-px h-8 bg-white/20" />
+                    <div className="flex items-center gap-3">
+                      <motion.div 
+                        className={`w-4 h-4 rounded-full ${
+                          systemStatus === 'ready' ? 'bg-emerald-400' :
+                          systemStatus === 'processing' ? 'bg-amber-400' :
+                          'bg-red-400'
+                        }`}
+                        animate={systemStatus === 'processing' ? { scale: [1, 1.2, 1] } : {}}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                      <span className="text-white font-medium capitalize">{systemStatus}</span>
                     </div>
-                    <div className="w-px h-6 bg-white/20" />
-                    <div className="text-white text-sm">
-                      AI Evolution: {userProfile.aiPersonalityEvolutionStage.toFixed(1)}/10
+                    <div className="w-px h-8 bg-white/20" />
+                    <div className="text-white">
+                      <div className="text-sm font-medium">AI Evolution</div>
+                      <div className="text-emerald-400 font-bold">{userProfile.aiPersonalityEvolutionStage.toFixed(1)}/10</div>
                     </div>
-                    <div className="w-px h-6 bg-white/20" />
-                    <div className="text-white text-sm">
-                      {emergentVectors.length} Strategic Vectors
+                    <div className="w-px h-8 bg-white/20" />
+                    <div className="text-white">
+                      <div className="text-sm font-medium">Strategic Vectors</div>
+                      <div className="text-cyan-400 font-bold">{emergentVectors.length}</div>
                     </div>
                   </div>
 
-                  {/* User Profile or Sign In Button */}
+                  {/* Enhanced User Profile or Sign In Button */}
                   {user ? (
                     <UserProfileCard />
                   ) : (
                     <motion.button
                       onClick={() => setAuthModalOpen(true)}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.05, boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)' }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-emerald-600 to-cyan-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-emerald-700 hover:to-cyan-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-2"
+                      className="bg-gradient-to-r from-emerald-600 via-cyan-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold hover:from-emerald-700 hover:to-purple-700 transition-all duration-300 shadow-xl font-space-grotesk flex items-center gap-3 border border-white/20 backdrop-blur-xl"
                     >
-                      <LogIn className="w-5 h-5" />
+                      <LogIn className="w-6 h-6" />
                       Sign In
                     </motion.button>
                   )}
                 </motion.div>
 
-                {/* User-specific sections (only show if authenticated) */}
+                {/* User-specific sections with enhanced glass morphism */}
                 {user && (
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <InteractionHistory />
-                    <FavoriteInsights />
-                    <UserDataUpload />
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <InteractionHistory />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <FavoriteInsights />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <UserDataUpload />
+                    </motion.div>
                   </div>
                 )}
 
-                {/* AI Agent Workflow */}
+                {/* Enhanced AI Agent Workflow */}
                 <AIAgentWorkflow
                   query={foresightConstruct?.strategicVector.title || ''}
                   isActive={workflowActive}
@@ -678,10 +904,10 @@ function App() {
                   }}
                 />
 
-                {/* System Health Monitor */}
+                {/* Enhanced System Health Monitor */}
                 <SystemHealthMonitor />
 
-                {/* Anomaly Detection */}
+                {/* Enhanced Anomaly Detection */}
                 <AnomalyDetectionAlert
                   isActive={isInitialized && settings.proactiveAlerts}
                   onDismiss={(anomalyId) => {
@@ -689,73 +915,104 @@ function App() {
                   }}
                 />
 
-                {/* Real-time Analytics Dashboard */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
+                {/* Enhanced Real-time Analytics Dashboard */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <motion.div 
+                    className="lg:col-span-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
                     <RealTimeAnalytics 
                       data={realTimeData}
                       vectors={emergentVectors}
                       cognitiveState={cognitiveState}
                     />
-                  </div>
-                  <div>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
                     <AIInsightStream insights={aiInsights} />
-                  </div>
+                  </motion.div>
                 </div>
 
-                {/* Generated Data Visualization */}
+                {/* Enhanced Generated Data Visualization */}
                 {generatedVisualization && (
-                  <GenerativeDataVisualization
-                    data={generatedVisualization.data}
-                    type={generatedVisualization.type}
-                    title={generatedVisualization.title}
-                    insight={generatedVisualization.insight}
-                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <GenerativeDataVisualization
+                      data={generatedVisualization.data}
+                      type={generatedVisualization.type}
+                      title={generatedVisualization.title}
+                      insight={generatedVisualization.insight}
+                    />
+                  </motion.div>
                 )}
 
-                {/* Enhanced Emergent Vectors Display */}
+                {/* Spectacular Emergent Vectors Display */}
                 {emergentVectors.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
                   >
-                    <div className="flex items-center gap-3 mb-6">
-                      <Sparkles className="w-6 h-6 text-emerald-400" />
-                      <h3 className="text-2xl font-bold text-white font-space-grotesk">
-                        Emergent Strategic Vectors
-                      </h3>
-                      <div className="text-sm text-gray-400">
-                        AI-identified patterns with {Math.round(emergentVectors.reduce((acc, v) => acc + v.confidenceScore, 0) / emergentVectors.length * 100)}% avg confidence
+                    <div className="flex items-center gap-4 mb-8">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="p-3 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-2xl"
+                      >
+                        <Sparkles className="w-8 h-8 text-white" />
+                      </motion.div>
+                      <div>
+                        <h3 className="text-3xl font-bold text-white font-space-grotesk">
+                          Emergent Strategic Vectors
+                        </h3>
+                        <div className="text-emerald-400 font-medium">
+                          AI-identified patterns with {Math.round(emergentVectors.reduce((acc, v) => acc + v.confidenceScore, 0) / emergentVectors.length * 100)}% avg confidence
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {emergentVectors.slice(0, 6).map((vector, index) => (
                         <motion.div
                           key={vector.id}
-                          initial={{ opacity: 0, y: 20 }}
+                          initial={{ opacity: 0, y: 30 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1  }}
-                          className="bg-gradient-to-br from-gray-900/60 to-black/60 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all duration-300 cursor-pointer group"
-                          whileHover={{ scale: 1.02 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="group bg-gradient-to-br from-gray-900/60 via-black/60 to-gray-900/60 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 hover:border-emerald-500/50 transition-all duration-500 cursor-pointer shadow-2xl hover:shadow-emerald-500/20"
+                          whileHover={{ scale: 1.02, y: -5 }}
                         >
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-bold text-white font-space-grotesk group-hover:text-emerald-300 transition-colors">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-xl font-bold text-white font-space-grotesk group-hover:text-emerald-300 transition-colors">
                               {vector.title}
                             </h4>
                             <div className="text-right">
-                              <div className="text-emerald-400 font-bold">{Math.round(vector.confidenceScore * 100)}%</div>
+                              <motion.div 
+                                className="text-2xl font-bold text-emerald-400"
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                              >
+                                {Math.round(vector.confidenceScore * 100)}%
+                              </motion.div>
                               <div className="text-xs text-gray-400">Confidence</div>
                             </div>
                           </div>
-                          <p className="text-gray-300 text-sm mb-4">{vector.description}</p>
                           
-                          {/* Leading Indicators */}
-                          <div className="mb-4">
-                            <div className="text-xs text-gray-400 mb-2">Leading Indicators:</div>
-                            <div className="flex flex-wrap gap-1">
+                          <p className="text-gray-300 mb-6 leading-relaxed">{vector.description}</p>
+                          
+                          {/* Enhanced Leading Indicators */}
+                          <div className="mb-6">
+                            <div className="text-sm text-emerald-400 mb-3 font-medium">Leading Indicators:</div>
+                            <div className="flex flex-wrap gap-2">
                               {vector.leadingIndicators.slice(0, 2).map((indicator, idx) => (
-                                <span key={idx} className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                                <span key={idx} className="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-2 rounded-full border border-emerald-500/30 backdrop-blur-sm">
                                   {indicator}
                                 </span>
                               ))}
@@ -763,10 +1020,12 @@ function App() {
                           </div>
                           
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500 capitalize">{vector.impactTimeframe.replace('_', ' ')}</span>
-                            <div className="flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3 text-emerald-400" />
-                              <span className="text-xs text-emerald-400">
+                            <span className="text-sm text-gray-500 capitalize bg-gray-800/50 px-3 py-1 rounded-full">
+                              {vector.impactTimeframe.replace('_', ' ')}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4 text-emerald-400" />
+                              <span className="text-sm text-emerald-400 font-medium">
                                 {Math.round(vector.relevanceToUser * 100)}% Relevant
                               </span>
                             </div>
@@ -777,44 +1036,55 @@ function App() {
                   </motion.div>
                 )}
 
-                {/* Enhanced Instructions */}
+                {/* Enhanced Ready State Instructions */}
                 {!foresightConstruct && !isProcessing && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8 }}
                     className="text-center"
                   >
-                    <div className="bg-gradient-to-r from-emerald-600/20 to-cyan-600/20 backdrop-blur-xl rounded-2xl p-8 border border-emerald-500/30">
-                      <AIPersonalityAvatar
-                        evolutionStage={userProfile.aiPersonalityEvolutionStage}
-                        isProcessing={false}
-                        learningRate={0.85}
-                        className="mb-4"
-                      />
-                      <h3 className="text-2xl font-bold text-white mb-4 font-space-grotesk">
+                    <div className="bg-gradient-to-br from-emerald-600/10 via-cyan-600/10 to-purple-600/10 backdrop-blur-2xl rounded-3xl p-12 border border-emerald-500/30 shadow-2xl">
+                      <motion.div
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="mb-8"
+                      >
+                        <AIPersonalityAvatar
+                          evolutionStage={userProfile.aiPersonalityEvolutionStage}
+                          isProcessing={false}
+                          learningRate={0.85}
+                          className="mb-6"
+                        />
+                      </motion.div>
+                      
+                      <h3 className="text-4xl font-bold text-white mb-6 font-space-grotesk">
                         Ready for Strategic Analysis
                       </h3>
-                      <p className="text-gray-300 font-space-grotesk text-lg mb-6">
+                      <p className="text-gray-300 font-space-grotesk text-xl mb-10 leading-relaxed max-w-4xl mx-auto">
                         Your AI co-processor has analyzed global data streams and identified strategic vectors.
                         Use the navigation menu or click the Brain icon to forge personalized insights.
                       </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                          <span>Real-time global data analysis</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                          <span>Autonomous AI agent workflows</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                          <span>Proactive anomaly detection</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
-                          <span>{user ? 'Personalized AI evolution' : 'Multi-sensory cognitive optimization'}</span>
-                        </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        {[
+                          { icon: Activity, text: 'Real-time global data analysis', color: 'emerald' },
+                          { icon: Cpu, text: 'Autonomous AI agent workflows', color: 'cyan' },
+                          { icon: Layers, text: 'Proactive anomaly detection', color: 'purple' },
+                          { icon: Orbit, text: user ? 'Personalized AI evolution' : 'Multi-sensory cognitive optimization', color: 'amber' }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1 + index * 0.1 }}
+                            className={`flex items-center gap-4 p-4 bg-${item.color}-600/10 rounded-2xl border border-${item.color}-500/30 backdrop-blur-sm`}
+                          >
+                            <div className={`w-3 h-3 bg-${item.color}-400 rounded-full animate-pulse`} />
+                            <item.icon className={`w-6 h-6 text-${item.color}-400`} />
+                            <span className="text-gray-300 font-medium">{item.text}</span>
+                          </motion.div>
+                        ))}
                       </div>
                     </div>
                   </motion.div>
@@ -825,7 +1095,7 @@ function App() {
         </div>
       </div>
 
-      {/* Query Forge Interface - Brain Button positioned in bottom-right */}
+      {/* Enhanced Query Forge Interface */}
       <QueryForge
         onQuerySubmit={handleQuerySubmit}
         isProcessing={isProcessing}
@@ -833,7 +1103,7 @@ function App() {
         onToggle={() => setQueryForgeVisible(!queryForgeVisible)}
       />
 
-      {/* Enhanced Foresight Display */}
+      {/* Spectacular Foresight Display */}
       <AnimatePresence>
         {foresightVisible && foresightConstruct && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -841,16 +1111,17 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/70 backdrop-blur-lg"
               onClick={() => setForesightVisible(false)}
             />
 
             <div className="flex min-h-full items-start justify-center p-4 pt-8">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="w-full max-w-2xl"
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="w-full max-w-4xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ForesightDisplay
@@ -859,8 +1130,8 @@ function App() {
                   isVisible={true}
                 />
                 
-                {/* Export Button */}
-                <div className="mt-4 flex justify-center">
+                {/* Enhanced Export Button */}
+                <div className="mt-6 flex justify-center">
                   <ExportInsightButton foresightConstruct={foresightConstruct} />
                 </div>
               </motion.div>

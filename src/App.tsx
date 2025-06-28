@@ -20,7 +20,6 @@ import { UserProfileCard } from './components/UserProfileCard';
 import { InteractionHistory } from './components/InteractionHistory';
 import { FavoriteInsights } from './components/FavoriteInsights';
 import { UserDataUpload } from './components/UserDataUpload';
-import { JudgeImpressionMode } from './components/JudgeImpressionMode';
 import { InsightManager } from './components/InsightManager';
 import { DataSourceManager } from './components/DataSourceManager';
 import { CollaborationHub } from './components/CollaborationHub';
@@ -35,13 +34,10 @@ import { useUserDataSources } from './hooks/useUserDataSources';
 import { useAnalytics } from './hooks/useAnalytics';
 import { useSettings } from './hooks/useSettings';
 import { UserProfile, ForesightConstruct, QueryContext, CognitiveState, EmergentStrategicVector } from './types';
-import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Play, Accessibility } from 'lucide-react';
+import { Brain, Zap, Activity, Settings, Sparkles, TrendingUp, LogIn, Accessibility } from 'lucide-react';
 
 function App() {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
-  
-  // Judge Impression Mode state
-  const [judgeMode, setJudgeMode] = useState(false);
   
   // Auth and user state
   const { user, loading: authLoading } = useAuth();
@@ -103,14 +99,6 @@ function App() {
   const [dataSourceManagerOpen, setDataSourceManagerOpen] = useState(false);
   const [collaborationHubOpen, setCollaborationHubOpen] = useState(false);
   const [accessibilityOpen, setAccessibilityOpen] = useState(false);
-
-  // Check URL parameters for judge mode
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('judge') === 'true' || urlParams.get('demo') === 'true') {
-      setJudgeMode(true);
-    }
-  }, []);
 
   // Update user profile when Supabase profile changes
   useEffect(() => {
@@ -200,16 +188,6 @@ function App() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
-
-  // Judge Mode Handler
-  const handleJudgeModeComplete = () => {
-    setJudgeMode(false);
-    // Remove judge mode from URL
-    const url = new URL(window.location.href);
-    url.searchParams.delete('judge');
-    url.searchParams.delete('demo');
-    window.history.replaceState({}, '', url.toString());
-  };
 
   // Initialize SYNAPTIC FORGE with enhanced AI capabilities
   const initializeSystem = async () => {
@@ -450,11 +428,6 @@ function App() {
 
   // NOW HANDLE CONDITIONAL RENDERING AFTER ALL HOOKS ARE CALLED
   
-  // Show Judge Impression Mode if activated
-  if (judgeMode) {
-    return <JudgeImpressionMode onComplete={handleJudgeModeComplete} />;
-  }
-
   // Show loading screen while auth is loading
   if (authLoading || profileLoading) {
     return (
@@ -469,17 +442,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
-      {/* Judge Mode Quick Access Button */}
-      <motion.button
-        onClick={() => setJudgeMode(true)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed top-6 left-1/2 transform -translate-x-1/2 z-40 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-full font-semibold text-sm hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg font-space-grotesk flex items-center gap-2 border border-white/20"
-      >
-        <Play className="w-4 h-4" />
-        🎬 Judge Demo Mode
-      </motion.button>
-
       {/* Accessibility Quick Access */}
       <motion.button
         onClick={() => setAccessibilityOpen(true)}
